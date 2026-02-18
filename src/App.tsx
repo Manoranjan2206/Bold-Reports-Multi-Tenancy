@@ -1,6 +1,7 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import Layout from './components/layout/Layout'
 import Dashboard from './components/dashboard/Dashboard'
+import IsolationDetailsModal from './components/dashboard/IsolationDetailsModal'
 import { mockData } from './data/mockData'
 
 const TENANT_MAPPING: Record<string, number> = {
@@ -13,6 +14,8 @@ function App() {
   const [model, setModel] = useState('Database per Tenant')
   const [tenant, setTenant] = useState('Northwind Traders')
   const [user, setUser] = useState('')
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [theme, setTheme] = useState('light')
 
   // Filter data based on selected Tenant
   const tenantId = TENANT_MAPPING[tenant] || 1
@@ -24,33 +27,57 @@ function App() {
      return users.length > 0 ? users : ['No Users Found']
   }, [tenantData])
 
-  // Automatically select the first user when tenant changes (or if current user is invalid for new tenant)
-  useEffect(() => {
-    if (availableUsers.length > 0 && !availableUsers.includes(user)) {
-      setUser(availableUsers[0])
+  // Derive the effectively selected user
+  // If the current 'user' state is not in the available users list (or empty), default to the first available user.
+  const effectiveUser = useMemo(() => {
+    if (user && availableUsers.includes(user)) {
+      return user
     }
+    return availableUsers[0] || ''
   }, [availableUsers, user])
 
-  // Filter data based on selected User (if any)
+  // Filter data based on effectiveUser
   const filteredData = useMemo(() => {
-    if (!user) return tenantData
-    return tenantData.filter(d => d.UserName === user)
-  }, [tenantData, user])
+    if (!effectiveUser) return tenantData
+    return tenantData.filter(d => d.UserName === effectiveUser)
+  }, [tenantData, effectiveUser])
 
   const handleRefresh = () => {
     // Add logic to refresh the report
     console.log('Refreshing report...')
   }
 
+  const toggleTheme = () => {
+    setTheme(prev => {
+      const newTheme = prev === 'light' ? 'dark' : 'light';
+      if (newTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      return newTheme;
+    });
+  }
+
   return (
     <Layout
       model={model} setModel={setModel}
       tenant={tenant} setTenant={setTenant}
-      user={user} setUser={setUser}
+      user={effectiveUser} setUser={setUser}
       availableUsers={availableUsers}
       onRefresh={handleRefresh}
+      onToggleModal={() => setIsModalOpen(true)}
+      theme={theme}
+      toggleTheme={toggleTheme}
     >
-      <Dashboard model={model} tenant={tenant} user={user} data={filteredData} />
+      <Dashboard model={model} tenant={tenant} user={effectiveUser} data={filteredData} />
+
+      {/* Modal */}
+      <IsolationDetailsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        model={model}
+      />
 
       {/* FAB */}
       <div className="fixed bottom-8 right-8 z-50">

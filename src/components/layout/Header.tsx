@@ -1,6 +1,12 @@
 import React from 'react';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onToggleModal: () => void;
+  theme: string;
+  toggleTheme: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onToggleModal, theme, toggleTheme }) => {
   return (
     <header className="h-16 bg-theme-green flex items-center justify-between px-4 shrink-0 shadow-md z-30">
       <div className="flex items-center gap-4">
@@ -13,6 +19,26 @@ const Header: React.FC = () => {
         </div>
       </div>
       <div className="flex items-center gap-4 text-white/90">
+        <button
+          onClick={onToggleModal}
+          className="flex items-center justify-center p-2 rounded-full hover:bg-white/10 transition-colors"
+          title="Data Isolation Details"
+        >
+          <span className="material-symbols-outlined text-[20px]">info</span>
+        </button>
+
+        <button
+          onClick={toggleTheme}
+          className="flex items-center justify-center p-2 rounded-full hover:bg-white/10 transition-colors"
+          title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+        >
+          <span className="material-symbols-outlined text-[20px]">
+            {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+          </span>
+        </button>
+
+        <div className="h-6 w-px bg-white/20 mx-2"></div>
+
         <a className="text-sm hover:text-white transition-colors" href="#">Help</a>
         <a className="text-sm hover:text-white transition-colors" href="#">Profile</a>
         <div className="size-8 rounded-full bg-theme-teal/20 flex items-center justify-center border border-theme-teal/40 text-theme-teal font-bold text-xs">
