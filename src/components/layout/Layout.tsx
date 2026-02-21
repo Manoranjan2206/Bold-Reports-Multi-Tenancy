@@ -49,7 +49,7 @@ const Layout: React.FC<LayoutProps> = ({
           onRefresh={onRefresh}
           isOpen={isSidebarOpen}
         />
-        <main className="flex-1 overflow-y-auto relative bg-page-bg dark:bg-slate-900 transition-colors">
+        <main className="flex-1 flex flex-col relative bg-page-bg dark:bg-slate-900 transition-colors overflow-hidden">
           {children}
         </main>
       </div>

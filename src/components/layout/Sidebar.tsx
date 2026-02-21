@@ -116,9 +116,6 @@ const Sidebar: React.FC<SidebarProps> = ({ model, setModel, tenant, setTenant, u
           </ul>
         </div>
       </div>
-      <div className="mt-auto p-4 text-xs text-slate-400 text-center border-t border-white/10 bg-theme-green-dark">
-        v2.4.0 © 2024 Bold Reports
-      </div>
     </aside>
   );
 };

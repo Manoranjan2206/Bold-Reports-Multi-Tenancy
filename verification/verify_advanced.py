@@ -1,0 +1,89 @@
+from playwright.sync_api import sync_playwright
+import time
+
+def run():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        # Use a larger viewport to simulate a desktop dashboard
+        context = browser.new_context(viewport={'width': 1920, 'height': 1080})
+        page = context.new_page()
+
+        print("Navigating to http://localhost:5173")
+        page.goto("http://localhost:5173")
+
+        # Wait for app load
+        page.wait_for_selector("h1", timeout=10000)
+
+        # 1. Verify Layout (Advanced Look)
+        print("Checking layout density...")
+        # Check if the main container is using full width (no max-w-6xl)
+        # We can check if the report viewer container is large
+        viewer_container = page.locator("#reportviewer-container")
+
+        # Wait for it to be visible/attached
+        viewer_container.wait_for(state="attached", timeout=5000)
+
+        box = viewer_container.bounding_box()
+        if box and box['height'] > 500:
+             print(f"Viewer container height is ample ({box['height']}px) - Correct.")
+        else:
+             print(f"Viewer container height is small ({box['height'] if box else 'None'}px) - Warning.")
+
+        # 2. Verify New Query Link
+        print("Checking New Query link...")
+        new_query_btn = page.locator("a[href='https://support.boldreports.com/']")
+        if new_query_btn.is_visible():
+            print("New Query button with correct link found - Correct.")
+        else:
+            print("New Query button link NOT found - Failed.")
+
+        # 3. Verify Manual Refresh Logic
+        print("Checking Manual Refresh logic...")
+
+        # Initial State: Northwind Traders
+        # Change Tenant in Sidebar to "Adventure Works"
+        sidebar_selects = page.locator("aside select")
+        tenant_select = sidebar_selects.nth(1) # 2nd select is Tenant
+        tenant_select.select_option(label="Adventure Works")
+
+        time.sleep(1)
+
+        # Check Dashboard Title/Context (should NOT change yet)
+        # Locator for the context text (looks for the slash separator)
+        # Using a more robust selector: looking for the text inside the header
+        # The structure is: <div ...> <span ... dot></span> <span ... text>{tenant} / {user}</span> </div>
+        # We can look for the span containing the slash.
+        context_span = page.locator("span.font-semibold:has-text('/')").first
+
+        # Wait for it to be ready
+        context_span.wait_for(timeout=5000)
+
+        chip_text_before = context_span.inner_text()
+        print(f"Context before refresh: {chip_text_before}")
+
+        if "Northwind Traders" in chip_text_before:
+             print("Dashboard did NOT update immediately (Correct).")
+        else:
+             print("Dashboard updated immediately (Failed).")
+
+        # Click Refresh
+        refresh_btn = page.locator("button:has-text('Refresh Report')")
+        refresh_btn.click()
+
+        # Wait a bit for update
+        time.sleep(1)
+
+        chip_text_after = context_span.inner_text()
+        print(f"Context after refresh: {chip_text_after}")
+
+        if "Adventure Works" in chip_text_after:
+             print("Dashboard updated after refresh click (Correct).")
+        else:
+             print("Dashboard did NOT update after refresh (Failed).")
+
+        page.screenshot(path="verification/advanced_layout_refresh.png")
+
+        browser.close()
+
+if __name__ == "__main__":
+    run()
