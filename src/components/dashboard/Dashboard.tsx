@@ -1,5 +1,24 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import type { SalesRecord } from '../../data/mockData';
+
+// Report Viewer source
+import '@boldreports/javascript-reporting-controls/Content/v2.0/tailwind-light/bold.report-viewer.min.css';
+import '@boldreports/javascript-reporting-controls/Scripts/v2.0/common/bold.reports.common.min';
+import '@boldreports/javascript-reporting-controls/Scripts/v2.0/common/bold.reports.widgets.min';
+import '@boldreports/javascript-reporting-controls/Scripts/v2.0/bold.report-viewer.min';
+
+// Reports React base (gives you the React component wrapper)
+import '@boldreports/react-reporting-components/Scripts/bold.reports.react.min';
+
+declare global {
+  interface Window {
+    BoldReportViewerComponent: any;
+  }
+}
+
+// Access the global component
+const BoldReportViewerComponent = window.BoldReportViewerComponent;
 
 interface DashboardProps {
   model: string;
@@ -31,52 +50,34 @@ const Dashboard: React.FC<DashboardProps> = ({ tenant, user, data }) => {
 
       {/* Report Viewer */}
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden min-h-[500px] flex flex-col">
+        {/* Toolbar Placeholder/Controls (Optional) */}
         <div className="bg-[#fcfcfc] dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-2 flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <button className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-500 dark:text-slate-400"><span className="material-symbols-outlined text-[20px]">print</span></button>
-            <button className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-500 dark:text-slate-400"><span className="material-symbols-outlined text-[20px]">save_alt</span></button>
-            <div className="h-4 w-px bg-slate-300 dark:bg-slate-600 mx-1"></div>
-            <button className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-500 dark:text-slate-400"><span className="material-symbols-outlined text-[20px]">first_page</span></button>
-            <button className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-500 dark:text-slate-400"><span className="material-symbols-outlined text-[20px]">chevron_left</span></button>
-            <span className="text-xs text-slate-600 dark:text-slate-300 mx-1">1 of 4</span>
-            <button className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-500 dark:text-slate-400"><span className="material-symbols-outlined text-[20px]">chevron_right</span></button>
-            <button className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-500 dark:text-slate-400"><span className="material-symbols-outlined text-[20px]">last_page</span></button>
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-500 dark:text-slate-400"><span className="material-symbols-outlined text-[20px]">zoom_in</span></button>
-            <span className="text-xs text-slate-600 dark:text-slate-300">100%</span>
-            <button className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-500 dark:text-slate-400"><span className="material-symbols-outlined text-[20px]">zoom_out</span></button>
-          </div>
+           {/* We can keep the dummy toolbar or remove it as Bold Reports has its own toolbar.
+               Let's keep it minimal for now or remove if it conflicts visually.
+               The user design had a toolbar, but Bold Viewer has one built-in.
+               I will remove the custom dummy toolbar to avoid confusion with the real one.
+           */}
+           <div className="text-xs text-slate-500 dark:text-slate-400 px-2">
+             Bold Reports Viewer Integration
+           </div>
         </div>
-        <div className="flex-1 bg-white dark:bg-slate-800 p-8 flex flex-col items-center justify-center relative">
-          <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 opacity-80">
-            <div className="bg-white dark:bg-slate-700 p-4 border border-slate-100 dark:border-slate-600 shadow-sm rounded">
-              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-4">Sales by Category</h4>
-              <div className="flex items-end justify-between h-40 gap-2 px-4">
-                <div className="w-full bg-theme-blue/80 h-[60%] rounded-t"></div>
-                <div className="w-full bg-theme-blue/60 h-[80%] rounded-t"></div>
-                <div className="w-full bg-theme-blue/40 h-[40%] rounded-t"></div>
-                <div className="w-full bg-theme-teal h-[90%] rounded-t"></div>
-                <div className="w-full bg-theme-blue/70 h-[50%] rounded-t"></div>
-              </div>
+
+        <div className="flex-1 bg-white dark:bg-slate-800 relative h-[600px] w-full">
+            {/* Bold Report Viewer Component */}
+            <div className="absolute inset-0">
+                {BoldReportViewerComponent ? (
+                  <BoldReportViewerComponent
+                    id="reportviewer-container"
+                    reportServiceUrl={'https://demos.boldreports.com/services/api/ReportViewer'}
+                    reportPath={'~/Resources/docs/sales-order-detail.rdl'}
+                    style={{ height: '100%', width: '100%' }}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-red-500">
+                    Error: BoldReportViewerComponent not found.
+                  </div>
+                )}
             </div>
-            <div className="bg-white dark:bg-slate-700 p-4 border border-slate-100 dark:border-slate-600 shadow-sm rounded">
-              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-4">Regional Distribution</h4>
-              <div className="relative size-32 mx-auto rounded-full border-[16px] border-slate-100 dark:border-slate-600 flex items-center justify-center">
-                <div className="absolute inset-0 rounded-full border-[16px] border-theme-teal border-l-transparent border-b-transparent rotate-45"></div>
-                <div className="text-center">
-                  <span className="block text-2xl font-bold text-slate-700 dark:text-slate-200">68%</span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">NA Region</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm px-6 py-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-lg text-center">
-              <p className="text-theme-green dark:text-theme-teal font-bold">Bold Reports Viewer</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Live Component Placeholder</p>
-            </div>
-          </div>
         </div>
       </div>
 

@@ -10,11 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@boldreports/javascript-reporting-controls": "^12.2.11",
+    "@boldreports/react-reporting-components": "^12.2.11",
+    "create-react-class": "^15.7.0",
+    "jquery": "^3.7.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@types/jquery": "^3.5.33",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
