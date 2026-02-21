@@ -58,7 +58,7 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ tenantId, userId }) => {
         const data = await response.json();
         if (data.access_token) {
             console.log("Token received");
-            setAuthorizationToken(`bearer ${data.access_token}`);
+            setAuthorizationToken(`${data.access_token}`);
         } else {
             console.error("No access_token in response", data);
             setError("Invalid token response from server");
@@ -101,8 +101,8 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ tenantId, userId }) => {
                     id="reportviewer-container"
                     reportServiceUrl={'https://cloud.boldreports.com/reporting/reportservice/api/Viewer'}
                     reportServerUrl={'https://cloud.boldreports.com/reporting/api/site/b1159702'}
-                    serviceAuthorizationToken={authorizationToken}
-                    reportPath={'/Sample Reports/Product Line Sales'}
+                    embedToken={authorizationToken}
+                    reportPath={'8e0df3f5-267f-45e1-8674-693d89133851'}
                     isResponsive={'true'}
                     style={{ height: '100%', width: '100%' }}
                   />

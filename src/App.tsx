@@ -117,7 +117,7 @@ function App() {
         {/* Top Bar - Denser */}
         <div className="flex items-center justify-between px-6 py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shrink-0">
             <div>
-            <h1 className="text-lg font-bold text-slate-800 dark:text-white leading-tight">Sales Order Detail</h1>
+            <h1 className="text-lg font-bold text-slate-800 dark:text-white leading-tight">Multi-Tenancy</h1>
             <p className="text-xs text-slate-500 dark:text-slate-400">Multi-Tenancy Demo Report</p>
             </div>
             <div className="flex items-center gap-3">
