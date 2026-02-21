@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "server": "node server/server.js",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -12,7 +13,11 @@
   "dependencies": {
     "@boldreports/javascript-reporting-controls": "^12.2.11",
     "@boldreports/react-reporting-components": "^12.2.11",
+    "axios": "^1.13.5",
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
     "create-react-class": "^15.7.0",
+    "express": "^5.2.1",
     "jquery": "^3.7.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

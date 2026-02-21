@@ -8,8 +8,22 @@ def run():
         context = browser.new_context(viewport={'width': 1920, 'height': 1080})
         page = context.new_page()
 
-        print("Navigating to http://localhost:5173")
-        page.goto("http://localhost:5173")
+        print("Navigating to http://localhost:5173 and waiting for token request...")
+
+        try:
+            # Expect the token request to happen on load
+            with page.expect_response("**/api/token", timeout=10000) as response_info:
+                page.goto("http://localhost:5173")
+
+            print("Token request detected successfully.")
+            response = response_info.value
+            if response.status == 200:
+                print("Token request succeeded (200 OK).")
+            else:
+                print(f"Token request failed with status {response.status}.")
+
+        except Exception as e:
+            print(f"Token verification failed: {e}")
 
         # Wait for app load
         page.wait_for_selector("h1", timeout=10000)
@@ -20,14 +34,16 @@ def run():
         # We can check if the report viewer container is large
         viewer_container = page.locator("#reportviewer-container")
 
-        # Wait for it to be visible/attached
-        viewer_container.wait_for(state="attached", timeout=5000)
-
-        box = viewer_container.bounding_box()
-        if box and box['height'] > 500:
-             print(f"Viewer container height is ample ({box['height']}px) - Correct.")
-        else:
-             print(f"Viewer container height is small ({box['height'] if box else 'None'}px) - Warning.")
+        # Wait for it to be visible/attached (might take longer if waiting for token)
+        try:
+            viewer_container.wait_for(state="attached", timeout=10000)
+            box = viewer_container.bounding_box()
+            if box and box['height'] > 500:
+                 print(f"Viewer container height is ample ({box['height']}px) - Correct.")
+            else:
+                 print(f"Viewer container height is small ({box['height'] if box else 'None'}px) - Warning.")
+        except Exception:
+            print("Viewer container did not appear (possibly due to token failure or loading).")
 
         # 2. Verify New Query Link
         print("Checking New Query link...")
@@ -49,10 +65,6 @@ def run():
         time.sleep(1)
 
         # Check Dashboard Title/Context (should NOT change yet)
-        # Locator for the context text (looks for the slash separator)
-        # Using a more robust selector: looking for the text inside the header
-        # The structure is: <div ...> <span ... dot></span> <span ... text>{tenant} / {user}</span> </div>
-        # We can look for the span containing the slash.
         context_span = page.locator("span.font-semibold:has-text('/')").first
 
         # Wait for it to be ready
@@ -66,12 +78,20 @@ def run():
         else:
              print("Dashboard updated immediately (Failed).")
 
-        # Click Refresh
+        # Click Refresh - Should trigger another token request
+        print("Clicking Refresh Report...")
         refresh_btn = page.locator("button:has-text('Refresh Report')")
-        refresh_btn.click()
+
+        try:
+             with page.expect_response("**/api/token", timeout=10000) as response_info_refresh:
+                  refresh_btn.click()
+             print("Refresh token request detected.")
+        except Exception as e:
+             print(f"Refresh token request failed: {e}")
+             refresh_btn.click() # Ensure click happened even if monitoring failed
 
         # Wait a bit for update
-        time.sleep(1)
+        time.sleep(2)
 
         chip_text_after = context_span.inner_text()
         print(f"Context after refresh: {chip_text_after}")

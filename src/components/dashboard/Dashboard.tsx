@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { SalesRecord } from '../../data/mockData';
 
 // Report Viewer source
@@ -38,24 +38,40 @@ const Dashboard: React.FC<DashboardProps> = ({ tenant, user, data, tenantId, use
     currency: 'USD',
   });
 
-  // Effect to update report parameters when tenant or user changes
+  const [authorizationToken, setAuthorizationToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Effect to fetch token when tenant or user changes
   useEffect(() => {
-    // Ensure jQuery and the viewer object are available
-    if (window.$) {
-        const viewerObj = window.$('#reportviewer-container').data('boldReportViewer');
-        if (viewerObj && typeof viewerObj.setModel === 'function') {
-            console.log(`Updating report parameters: TenantId=${tenantId}, UserId=${userId}`);
-            const parameters = [
-                { Name: 'TenantId', Values: [tenantId.toString()] },
-                { Name: 'UserId',   Values: [userId.toString()]   }
-            ];
-            try {
-                viewerObj.setModel({ parameters: parameters });
-            } catch (err) {
-                console.error("Failed to update report parameters:", err);
-            }
+    const fetchToken = async () => {
+      setLoading(true);
+      try {
+        console.log(`Fetching token for TenantId=${tenantId}, UserId=${userId}`);
+        const response = await fetch('/api/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tenantId, userId })
+        });
+
+        if (!response.ok) {
+           throw new Error(`Server returned ${response.status}`);
         }
-    }
+
+        const data = await response.json();
+        if (data.access_token) {
+            console.log("Token received");
+            setAuthorizationToken(`bearer ${data.access_token}`);
+        } else {
+            console.error("No access_token in response", data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch token:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchToken();
   }, [tenantId, userId]);
 
   return (
@@ -85,20 +101,24 @@ const Dashboard: React.FC<DashboardProps> = ({ tenant, user, data, tenantId, use
             <div className="flex-1 relative w-full h-full">
                 {/* Bold Report Viewer Component */}
                 <div className="absolute inset-0">
-                    {BoldReportViewerComponent ? (
+                    {loading ? (
+                       <div className="flex items-center justify-center h-full text-slate-500">
+                           <span className="animate-spin material-symbols-outlined text-4xl mr-2">progress_activity</span>
+                           Generating secure token...
+                       </div>
+                    ) : authorizationToken && BoldReportViewerComponent ? (
                       <BoldReportViewerComponent
                         id="reportviewer-container"
-                        reportServiceUrl={'https://demos.boldreports.com/services/api/ReportViewer'}
-                        reportPath={'~/Resources/docs/sales-order-detail.rdl'}
+                        reportServiceUrl={'https://cloud.boldreports.com/reporting/reportservice/api/Viewer'}
+                        reportServerUrl={'https://cloud.boldreports.com/reporting/api/site/b1159702'}
+                        serviceAuthorizationToken={authorizationToken}
+                        reportPath={'/Sample Reports/Product Line Sales'}
+                        isResponsive={'true'}
                         style={{ height: '100%', width: '100%' }}
-                        parameters={[
-                            { name: 'TenantId', values: [tenantId.toString()] },
-                            { name: 'UserId',   values: [userId.toString()]   }
-                        ]}
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full text-red-500">
-                        Error: BoldReportViewerComponent not found.
+                        {!BoldReportViewerComponent ? "Error: BoldReportViewerComponent not found." : "Waiting for token..."}
                       </div>
                     )}
                 </div>
@@ -106,7 +126,6 @@ const Dashboard: React.FC<DashboardProps> = ({ tenant, user, data, tenantId, use
         </div>
 
         {/* Sample Data Table - Collapsible or smaller at bottom */}
-        {/* For "Advanced Look", let's make this section smaller/scrollable or keep it as a bottom panel */}
         <div className="h-64 shrink-0 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden">
              <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex items-center gap-2">
                 <span className="material-symbols-outlined text-theme-blue dark:text-blue-400 text-lg">table_view</span>
