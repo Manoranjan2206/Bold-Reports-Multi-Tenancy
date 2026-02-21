@@ -16,6 +16,7 @@ function App() {
   const [user, setUser] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [theme, setTheme] = useState('light')
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
   // Filter data based on selected Tenant
   const tenantId = TENANT_MAPPING[tenant] || 1
@@ -41,6 +42,13 @@ function App() {
     if (!effectiveUser) return tenantData
     return tenantData.filter(d => d.UserName === effectiveUser)
   }, [tenantData, effectiveUser])
+
+  // Derive userId for the report viewer
+  const userId = useMemo(() => {
+      if (!effectiveUser) return 0;
+      const userRecord = tenantData.find(u => u.UserName === effectiveUser);
+      return userRecord ? userRecord.UserId : 0;
+  }, [tenantData, effectiveUser]);
 
   const handleRefresh = () => {
     // Add logic to refresh the report
@@ -69,8 +77,17 @@ function App() {
       onToggleModal={() => setIsModalOpen(true)}
       theme={theme}
       toggleTheme={toggleTheme}
+      isSidebarOpen={isSidebarOpen}
+      setIsSidebarOpen={setIsSidebarOpen}
     >
-      <Dashboard model={model} tenant={tenant} user={effectiveUser} data={filteredData} />
+      <Dashboard
+        model={model}
+        tenant={tenant}
+        user={effectiveUser}
+        data={filteredData}
+        tenantId={tenantId}
+        userId={userId}
+      />
 
       {/* Modal */}
       <IsolationDetailsModal

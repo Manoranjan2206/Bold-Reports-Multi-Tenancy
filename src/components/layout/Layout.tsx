@@ -15,6 +15,8 @@ interface LayoutProps {
   onToggleModal: () => void;
   theme: string;
   toggleTheme: () => void;
+  isSidebarOpen: boolean;
+  setIsSidebarOpen: (value: boolean) => void;
 }
 
 const Layout: React.FC<LayoutProps> = ({
@@ -26,11 +28,18 @@ const Layout: React.FC<LayoutProps> = ({
   onRefresh,
   onToggleModal,
   theme,
-  toggleTheme
+  toggleTheme,
+  isSidebarOpen,
+  setIsSidebarOpen
 }) => {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-page-bg dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-display transition-colors">
-      <Header onToggleModal={onToggleModal} theme={theme} toggleTheme={toggleTheme} />
+      <Header
+        onToggleModal={onToggleModal}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+      />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           model={model} setModel={setModel}
@@ -38,6 +47,7 @@ const Layout: React.FC<LayoutProps> = ({
           user={user} setUser={setUser}
           availableUsers={availableUsers}
           onRefresh={onRefresh}
+          isOpen={isSidebarOpen}
         />
         <main className="flex-1 overflow-y-auto relative bg-page-bg dark:bg-slate-900 transition-colors">
           {children}

@@ -9,12 +9,18 @@ interface SidebarProps {
   setUser: (value: string) => void;
   availableUsers: string[];
   onRefresh: () => void;
+  isOpen: boolean;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ model, setModel, tenant, setTenant, user, setUser, availableUsers, onRefresh }) => {
+const Sidebar: React.FC<SidebarProps> = ({ model, setModel, tenant, setTenant, user, setUser, availableUsers, onRefresh, isOpen }) => {
   return (
-    <aside className="w-[320px] h-full flex flex-col bg-theme-green border-r border-white/10 shrink-0 overflow-y-auto text-white z-20 shadow-xl sidebar-scroll">
-      <div className="p-6 flex flex-col gap-6">
+    <aside
+      className={`
+        bg-theme-green border-r border-white/10 shrink-0 overflow-y-auto text-white z-20 shadow-xl sidebar-scroll transition-all duration-300 ease-in-out
+        ${isOpen ? 'w-[320px] translate-x-0' : 'w-0 -translate-x-full overflow-hidden opacity-0'}
+      `}
+    >
+      <div className="p-6 flex flex-col gap-6 w-[320px]">
         <div className="mb-2">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-theme-teal mb-4">Configuration</h2>
         </div>

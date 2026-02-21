@@ -10,7 +10,7 @@ interface IsolationDetailsModalProps {
 }
 
 const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, onClose, model }) => {
-  const [activeTab, setActiveTab] = useState<'visualization' | 'accessPattern'>('visualization');
+  const [activeTab, setActiveTab] = useState<'visualization' | 'accessPattern' | 'userDetails'>('visualization');
 
   if (!isOpen) return null;
 
@@ -28,7 +28,7 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[2147483647] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700">
@@ -39,10 +39,10 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-slate-200 dark:border-slate-700 px-6">
+        <div className="flex border-b border-slate-200 dark:border-slate-700 px-6 overflow-x-auto">
           <button
             onClick={() => setActiveTab('visualization')}
-            className={`py-3 px-4 text-sm font-medium border-b-2 transition-colors ${
+            className={`py-3 px-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               activeTab === 'visualization'
                 ? 'border-theme-teal text-theme-teal'
                 : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
@@ -52,13 +52,23 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
           </button>
           <button
             onClick={() => setActiveTab('accessPattern')}
-            className={`py-3 px-4 text-sm font-medium border-b-2 transition-colors ${
+            className={`py-3 px-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               activeTab === 'accessPattern'
                 ? 'border-theme-teal text-theme-teal'
                 : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
             }`}
           >
             Access Pattern
+          </button>
+          <button
+            onClick={() => setActiveTab('userDetails')}
+            className={`py-3 px-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === 'userDetails'
+                ? 'border-theme-teal text-theme-teal'
+                : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+            }`}
+          >
+            User Details
           </button>
         </div>
 
@@ -116,6 +126,129 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
                 </pre>
               </div>
             </div>
+          )}
+
+          {activeTab === 'userDetails' && (
+             <div className="overflow-x-auto bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+                 <table className="min-w-full text-left text-sm whitespace-nowrap">
+                    <thead className="bg-[#f0f4f8] dark:bg-slate-900/50 text-slate-700 dark:text-slate-300 uppercase font-semibold text-xs border-b border-slate-200 dark:border-slate-700">
+                        <tr>
+                            <th className="px-6 py-3">Tenant</th>
+                            <th className="px-6 py-3">Username</th>
+                            <th className="px-6 py-3">User Email</th>
+                            <th className="px-6 py-3">Assigned Attributes (Regions)</th>
+                            <th className="px-6 py-3">Access Scope</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-600 dark:text-slate-300">
+                        <tr className="bg-blue-50 dark:bg-blue-900/20 font-medium text-slate-900 dark:text-white">
+                            <td className="px-6 py-3"><strong>Acme Corp</strong></td>
+                            <td className="px-6 py-3">Sophia Reynolds</td>
+                            <td className="px-6 py-3">sophia.reynolds@acmecorp.com</td>
+                            <td className="px-6 py-3">North America</td>
+                            <td className="px-6 py-3">Regional Manager (North America)</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-3"><strong>Acme Corp</strong></td>
+                            <td className="px-6 py-3">James Carter</td>
+                            <td className="px-6 py-3">james.carter@acmecorp.com</td>
+                            <td className="px-6 py-3">Europe</td>
+                            <td className="px-6 py-3">Regional Manager (Europe)</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-3"><strong>Acme Corp</strong></td>
+                            <td className="px-6 py-3">Olivia Bennett</td>
+                            <td className="px-6 py-3">olivia.bennett@acmecorp.com</td>
+                            <td className="px-6 py-3">Asia</td>
+                            <td className="px-6 py-3">Regional Manager (Asia)</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-3"><strong>Acme Corp</strong></td>
+                            <td className="px-6 py-3">Ethan Patel</td>
+                            <td className="px-6 py-3">ethan.patel@acmecorp.com</td>
+                            <td className="px-6 py-3">Oceania</td>
+                            <td className="px-6 py-3">Regional Manager (Oceania)</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-3"><strong>Acme Corp</strong></td>
+                            <td className="px-6 py-3">Ava Thompson</td>
+                            <td className="px-6 py-3">ava.thompson@acmecorp.com</td>
+                            <td className="px-6 py-3">North America, Europe, Asia, Oceania</td>
+                            <td className="px-6 py-3">Global Access (All Regions)</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-3"><strong>Beta Inc</strong></td>
+                            <td className="px-6 py-3">Lucas Mitchell</td>
+                            <td className="px-6 py-3">lucas.mitchell@betaenterprise.com</td>
+                            <td className="px-6 py-3">North America</td>
+                            <td className="px-6 py-3">Regional Manager (North America)</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-3"><strong>Beta Inc</strong></td>
+                            <td className="px-6 py-3">Isabella Hayes</td>
+                            <td className="px-6 py-3">isabella.hayes@betaenterprise.com</td>
+                            <td className="px-6 py-3">Europe</td>
+                            <td className="px-6 py-3">Regional Manager (Europe)</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-3"><strong>Beta Inc</strong></td>
+                            <td className="px-6 py-3">Noah Sullivan</td>
+                            <td className="px-6 py-3">noah.sullivan@betaenterprise.com</td>
+                            <td className="px-6 py-3">Asia</td>
+                            <td className="px-6 py-3">Regional Manager (Asia)</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-3"><strong>Beta Inc</strong></td>
+                            <td className="px-6 py-3">Emma Foster</td>
+                            <td className="px-6 py-3">emma.foster@betaenterprise.com</td>
+                            <td className="px-6 py-3">Oceania</td>
+                            <td className="px-6 py-3">Regional Manager (Oceania)</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-3"><strong>Beta Inc</strong></td>
+                            <td className="px-6 py-3">Liam Brooks</td>
+                            <td className="px-6 py-3">liam.brooks@betaenterprise.com</td>
+                            <td className="px-6 py-3">North America, Europe, Asia, Oceania</td>
+                            <td className="px-6 py-3">Global Access (All Regions)</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-3"><strong>Gamma Ltd</strong></td>
+                            <td className="px-6 py-3">Charlotte Evans</td>
+                            <td className="px-6 py-3">charlotte.evans@gammaindustries.com</td>
+                            <td className="px-6 py-3">North America</td>
+                            <td className="px-6 py-3">Regional Manager (North America)</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-3"><strong>Gamma Ltd</strong></td>
+                            <td className="px-6 py-3">Benjamin Hughes</td>
+                            <td className="px-6 py-3">benjamin.hughes@gammaindustries.com</td>
+                            <td className="px-6 py-3">Europe</td>
+                            <td className="px-6 py-3">Regional Manager (Europe)</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-3"><strong>Gamma Ltd</strong></td>
+                            <td className="px-6 py-3">Amelia Ward</td>
+                            <td className="px-6 py-3">amelia.ward@gammaindustries.com</td>
+                            <td className="px-6 py-3">Asia</td>
+                            <td className="px-6 py-3">Regional Manager (Asia)</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-3"><strong>Gamma Ltd</strong></td>
+                            <td className="px-6 py-3">Elijah Scott</td>
+                            <td className="px-6 py-3">elijah.scott@gammaindustries.com</td>
+                            <td className="px-6 py-3">Oceania</td>
+                            <td className="px-6 py-3">Regional Manager (Oceania)</td>
+                        </tr>
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-3"><strong>Gamma Ltd</strong></td>
+                            <td className="px-6 py-3">Harper King</td>
+                            <td className="px-6 py-3">harper.king@gammaindustries.com</td>
+                            <td className="px-6 py-3">North America, Europe, Asia, Oceania</td>
+                            <td className="px-6 py-3">Global Access (All Regions)</td>
+                        </tr>
+                    </tbody>
+                 </table>
+             </div>
           )}
         </div>
 

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { SalesRecord } from '../../data/mockData';
 
 // Report Viewer source
@@ -14,6 +14,8 @@ import '@boldreports/react-reporting-components/Scripts/bold.reports.react.min';
 declare global {
   interface Window {
     BoldReportViewerComponent: any;
+    $: any;
+    jQuery: any;
   }
 }
 
@@ -25,14 +27,37 @@ interface DashboardProps {
   tenant: string;
   user: string;
   data: SalesRecord[];
+  tenantId: number;
+  userId: number;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ tenant, user, data }) => {
+const Dashboard: React.FC<DashboardProps> = ({ tenant, user, data, tenantId, userId }) => {
   const userName = user.split(' (')[0];
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
   });
+
+  // Effect to update report parameters when tenant or user changes
+  useEffect(() => {
+    // Ensure jQuery and the viewer object are available
+    if (window.$) {
+        const viewerObj = window.$('#reportviewer-container').data('boldReportViewer');
+        if (viewerObj && typeof viewerObj.setModel === 'function') {
+            console.log(`Updating report parameters: TenantId=${tenantId}, UserId=${userId}`);
+            const parameters = [
+                { Name: 'TenantId', Values: [tenantId.toString()] },
+                { Name: 'UserId',   Values: [userId.toString()]   }
+            ];
+            try {
+                viewerObj.setModel({ parameters: parameters });
+                // We could update a status indicator here if we had one in the UI
+            } catch (err) {
+                console.error("Failed to update report parameters:", err);
+            }
+        }
+    }
+  }, [tenantId, userId]);
 
   return (
     <div className="max-w-6xl mx-auto p-8 space-y-8 pb-24">
@@ -52,11 +77,6 @@ const Dashboard: React.FC<DashboardProps> = ({ tenant, user, data }) => {
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden min-h-[500px] flex flex-col">
         {/* Toolbar Placeholder/Controls (Optional) */}
         <div className="bg-[#fcfcfc] dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-2 flex items-center justify-between">
-           {/* We can keep the dummy toolbar or remove it as Bold Reports has its own toolbar.
-               Let's keep it minimal for now or remove if it conflicts visually.
-               The user design had a toolbar, but Bold Viewer has one built-in.
-               I will remove the custom dummy toolbar to avoid confusion with the real one.
-           */}
            <div className="text-xs text-slate-500 dark:text-slate-400 px-2">
              Bold Reports Viewer Integration
            </div>
@@ -71,6 +91,10 @@ const Dashboard: React.FC<DashboardProps> = ({ tenant, user, data }) => {
                     reportServiceUrl={'https://demos.boldreports.com/services/api/ReportViewer'}
                     reportPath={'~/Resources/docs/sales-order-detail.rdl'}
                     style={{ height: '100%', width: '100%' }}
+                    parameters={[
+                        { name: 'TenantId', values: [tenantId.toString()] },
+                        { name: 'UserId',   values: [userId.toString()]   }
+                    ]}
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full text-red-500">

@@ -4,13 +4,17 @@ interface HeaderProps {
   onToggleModal: () => void;
   theme: string;
   toggleTheme: () => void;
+  onToggleSidebar: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onToggleModal, theme, toggleTheme }) => {
+const Header: React.FC<HeaderProps> = ({ onToggleModal, theme, toggleTheme, onToggleSidebar }) => {
   return (
     <header className="h-16 bg-theme-green flex items-center justify-between px-4 shrink-0 shadow-md z-30">
       <div className="flex items-center gap-4">
-        <button className="text-white hover:bg-white/10 rounded-full p-2 transition-colors">
+        <button
+          onClick={onToggleSidebar}
+          className="text-white hover:bg-white/10 rounded-full p-2 transition-colors"
+        >
           <span className="material-symbols-outlined text-[24px]">menu</span>
         </button>
         <div className="flex items-center gap-2 text-white">
