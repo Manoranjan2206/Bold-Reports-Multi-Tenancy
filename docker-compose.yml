@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  bold-reports:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    container_name: bold-reports
+    
+    ports:
+      - "3001:3001"
+    
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    
+    env_file:
+      - .env
+    
+    restart: unless-stopped
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=bold-reports"
+    
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+
+# Optional: Nginx reverse proxy
+# Uncomment to use Nginx with Docker
+#
+# services:
+#   nginx:
+#     image: nginx:alpine
+#     container_name: bold-reports-nginx
+#     ports:
+#       - "80:80"
+#       - "443:443"
+#     volumes:
+#       - ./nginx/bold-reports.conf:/etc/nginx/conf.d/default.conf:ro
+#       - ./certs:/etc/nginx/certs:ro
+#     depends_on:
+#       - bold-reports
+#     restart: unless-stopped
+#
+#   certbot:
+#     image: certbot/certbot
+#     container_name: bold-reports-certbot
+#     volumes:
+#       - ./certs:/etc/letsencrypt
+#       - ./certbot-www:/var/www/certbot
+#     entrypoint: /bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'

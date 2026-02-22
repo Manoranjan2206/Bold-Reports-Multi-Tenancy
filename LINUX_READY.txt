@@ -1,0 +1,287 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║        ✅ BOLD REPORTS MULTI-TENANCY - LINUX DEPLOYMENT READY             ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+Your application is now fully prepared for production Linux hosting!
+
+═════════════════════════════════════════════════════════════════════════════
+📦 NEW FILES CREATED (10 Total)
+═════════════════════════════════════════════════════════════════════════════
+
+DEPLOYMENT SCRIPTS & GUIDES:
+  ✓ deploy.sh                           - Automated preparation script
+  ✓ LINUX_SETUP.md                      - Complete setup guide (100+ sections)
+  ✓ LINUX_DEPLOYMENT_READY.md           - Quick reference
+  ✓ LINUX_DEPLOYMENT_FILES.md           - Files overview
+
+CONTAINERIZATION:
+  ✓ Dockerfile                          - Multi-stage build
+  ✓ docker-compose.yml                  - Container orchestration
+  ✓ .dockerignore                       - Build optimization
+
+PROCESS MANAGEMENT:
+  ✓ ecosystem.config.js                 - PM2 configuration
+
+SYSTEM CONFIGURATION:
+  ✓ systemd/bold-reports.service        - Systemd service
+  ✓ nginx/bold-reports.conf             - Nginx reverse proxy
+
+ENVIRONMENT:
+  ✓ .env.production                     - Production template
+
+═════════════════════════════════════════════════════════════════════════════
+🚀 QUICK START (3 STEPS - 5 MINUTES)
+═════════════════════════════════════════════════════════════════════════════
+
+Step 1: PREPARE LOCALLY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  $ chmod +x deploy.sh
+  $ ./deploy.sh
+  
+  This will:
+  ✓ Check prerequisites
+  ✓ Validate .env file
+  ✓ Install dependencies
+  ✓ Build frontend
+  ✓ Prepare production build
+
+Step 2: UPLOAD TO SERVER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  $ rsync -avz --exclude='node_modules' --exclude='.git' \
+    . user@server:/var/www/bold-reports/
+
+Step 3: START APPLICATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  $ ssh user@server
+  $ cd /var/www/bold-reports
+  $ npm ci --only=production
+  
+  Choose one deployment method:
+  
+  OPTION A: PM2 (Recommended - Easiest)
+  ───────────────────────────────────────
+    $ npm install -g pm2
+    $ pm2 start ecosystem.config.js --env production
+    $ pm2 startup && pm2 save
+  
+  OPTION B: Systemd (Enterprise - Recommended)
+  ─────────────────────────────────────────────
+    $ sudo cp systemd/bold-reports.service /etc/systemd/system/
+    $ sudo systemctl enable bold-reports
+    $ sudo systemctl start bold-reports
+  
+  OPTION C: Docker (Scalable)
+  ────────────────────────────
+    $ docker-compose up -d
+
+═════════════════════════════════════════════════════════════════════════════
+📋 DEPLOYMENT METHODS
+═════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ PM2 (Process Manager)                                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Best for:     Small to medium teams                                         │
+│ Difficulty:   Easy ⭐                                                        │
+│ Setup time:   5 minutes                                                     │
+│ Features:     Auto-restart, clustering, monitoring                          │
+│ Config file:  ecosystem.config.js                                           │
+│ Start cmd:    pm2 start ecosystem.config.js --env production                │
+│ Monitor:      pm2 monit / pm2 logs bold-reports                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Systemd (Linux System Service)                                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Best for:     Enterprise / Production                                       │
+│ Difficulty:   Medium ⭐⭐                                                     │
+│ Setup time:   10 minutes                                                    │
+│ Features:     System-level control, journald logging, auto-start            │
+│ Config file:  systemd/bold-reports.service                                  │
+│ Start cmd:    sudo systemctl start bold-reports                             │
+│ Monitor:      sudo journalctl -u bold-reports -f                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Docker (Container)                                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Best for:     DevOps / Kubernetes / Scaling                                 │
+│ Difficulty:   Medium ⭐⭐                                                     │
+│ Setup time:   15 minutes                                                    │
+│ Features:     Isolation, easy updates, clustering                           │
+│ Config file:  Dockerfile & docker-compose.yml                               │
+│ Start cmd:    docker-compose up -d                                          │
+│ Monitor:      docker-compose logs -f / docker ps                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+═════════════════════════════════════════════════════════════════════════════
+📖 DOCUMENTATION
+═════════════════════════════════════════════════════════════════════════════
+
+Read in this order:
+
+  1. LINUX_DEPLOYMENT_READY.md        ← Start here! (Quick overview)
+  2. LINUX_SETUP.md                   ← Complete step-by-step guide
+  3. LINUX_DEPLOYMENT_FILES.md        ← Files reference
+  4. deploy.sh                         ← Run for preparation
+  5. Configuration files               ← For specific setup
+
+═════════════════════════════════════════════════════════════════════════════
+✅ PRE-DEPLOYMENT CHECKLIST
+═════════════════════════════════════════════════════════════════════════════
+
+LOCAL MACHINE:
+  ☐ Run: chmod +x deploy.sh && ./deploy.sh
+  ☐ Verify: deploy.sh completes successfully
+  ☐ Test: npm run start:prod works locally
+  ☐ Configure: .env file has all variables
+  ☐ Upload: Files to server with rsync
+
+SERVER SETUP:
+  ☐ SSH: Connect to Linux server
+  ☐ Directory: Create /var/www/bold-reports
+  ☐ Permissions: Set correct ownership
+  ☐ Environment: Create .env file
+  ☐ Dependencies: npm ci --only=production
+
+APPLICATION START:
+  ☐ Choose: PM2, Systemd, or Docker
+  ☐ Install: Required tools
+  ☐ Start: Application running
+  ☐ Verify: curl http://localhost:3001 works
+
+WEB SERVER:
+  ☐ Install: Nginx
+  ☐ Configure: Copy nginx/bold-reports.conf
+  ☐ Update: Domain name in config
+  ☐ Test: nginx -t
+  ☐ Reload: systemctl reload nginx
+
+SSL/HTTPS:
+  ☐ Install: Certbot
+  ☐ Certificate: Let's Encrypt
+  ☐ Verify: https://your-domain.com works
+  ☐ Auto-renewal: Enabled
+
+VERIFICATION:
+  ☐ Browser: Application loads
+  ☐ Logs: No errors
+  ☐ Token: Generation works
+  ☐ Reports: Display correctly
+  ☐ Performance: Response times OK
+
+═════════════════════════════════════════════════════════════════════════════
+🔒 SECURITY FEATURES
+═════════════════════════════════════════════════════════════════════════════
+
+✓ Environment variables (credentials not in code)
+✓ .env file excluded from git
+✓ Non-root user in Docker
+✓ Nginx security headers
+✓ SSL/HTTPS ready
+✓ Firewall guidelines included
+✓ Permission settings documented
+✓ Backup strategy included
+✓ Auto-restart on crash
+✓ Health checks configured
+
+═════════════════════════════════════════════════════════════════════════════
+📊 SYSTEM REQUIREMENTS
+═════════════════════════════════════════════════════════════════════════════
+
+MINIMUM:                          RECOMMENDED:
+├─ OS: Ubuntu 20.04             ├─ OS: Ubuntu 22.04+
+├─ Node.js: 16+                 ├─ Node.js: 18+
+├─ RAM: 512 MB                  ├─ RAM: 2 GB+
+├─ Disk: 2 GB                   ├─ Disk: 10 GB+
+└─ CPU: 1 core                  └─ CPU: 2+ cores
+
+═════════════════════════════════════════════════════════════════════════════
+🎯 KEY FILES & THEIR PURPOSE
+═════════════════════════════════════════════════════════════════════════════
+
+deploy.sh                  → Run first! Automates local preparation
+LINUX_SETUP.md             → Complete deployment guide (read during setup)
+ecosystem.config.js        → Use with PM2
+bold-reports.service       → Use with Systemd
+bold-reports.conf          → Use with Nginx
+Dockerfile                 → Use with Docker
+docker-compose.yml         → Use with Docker Compose
+.env.production            → Copy to .env on server
+
+═════════════════════════════════════════════════════════════════════════════
+🚀 DEPLOYMENT TIME ESTIMATES
+═════════════════════════════════════════════════════════════════════════════
+
+Local Preparation:     5-10 minutes
+Upload to Server:      5-10 minutes
+Install Dependencies:  10-20 minutes
+Start Application:     5 minutes (PM2) or 10 (Systemd)
+Configure Nginx:       10 minutes
+Setup SSL:             10 minutes
+Testing & Verification: 10-15 minutes
+                       ─────────────
+Total Estimated Time:  60-90 minutes
+
+═════════════════════════════════════════════════════════════════════════════
+📞 SUPPORT & RESOURCES
+═════════════════════════════════════════════════════════════════════════════
+
+Documentation:
+  ├─ LINUX_SETUP.md             - Complete setup guide
+  ├─ LINUX_DEPLOYMENT_READY.md  - Quick reference
+  ├─ README_HOSTED.md           - Hosted deployment overview
+  └─ DEPLOYMENT_CHECKLIST.md    - Detailed checklist
+
+External Resources:
+  ├─ Bold Reports: https://support.boldreports.com/
+  ├─ Node.js: https://nodejs.org/docs/
+  ├─ Express: https://expressjs.com/
+  ├─ Nginx: https://nginx.org/en/docs/
+  ├─ PM2: https://pm2.keymetrics.io/
+  ├─ Docker: https://docs.docker.com/
+  └─ Let's Encrypt: https://letsencrypt.org/
+
+═════════════════════════════════════════════════════════════════════════════
+✨ WHAT'S INCLUDED
+═════════════════════════════════════════════════════════════════════════════
+
+✓ Automated deployment script
+✓ PM2 configuration
+✓ Systemd service file
+✓ Nginx reverse proxy config
+✓ Docker containerization
+✓ Docker Compose orchestration
+✓ Production environment template
+✓ Complete documentation (4 guides)
+✓ Security hardening guidelines
+✓ Backup strategies
+✓ Monitoring setup
+✓ Troubleshooting guide
+✓ 3 deployment methods ready to use
+
+═════════════════════════════════════════════════════════════════════════════
+🎉 YOU'RE READY TO DEPLOY!
+═════════════════════════════════════════════════════════════════════════════
+
+Your Bold Reports application is fully prepared for Linux production hosting.
+
+NEXT STEPS:
+
+  1. Read: LINUX_DEPLOYMENT_READY.md (5 min)
+     
+  2. Run: chmod +x deploy.sh && ./deploy.sh (10 min)
+     
+  3. Upload: rsync to your server (5 min)
+     
+  4. Setup: Follow LINUX_SETUP.md on server (45 min)
+     
+  5. Launch: Go live! 🚀
+
+═════════════════════════════════════════════════════════════════════════════
+
+Questions? Check LINUX_SETUP.md or visit https://support.boldreports.com/
+
+Good luck! 🚀
