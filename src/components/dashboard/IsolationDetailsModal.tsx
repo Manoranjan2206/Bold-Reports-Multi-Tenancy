@@ -2,14 +2,25 @@ import React, { useState } from 'react';
 import siloImg from '../../assets/silo.png';
 import schemaImg from '../../assets/schema.png';
 import rowImg from '../../assets/row.png';
+import { mockData } from '../../data/mockData';
 
 interface IsolationDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   model: string;
+  tenant: string;
+  user: string;
 }
 
-const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, onClose, model }) => {
+interface UserDetail {
+    TenantId: number;
+    UserName: string;
+    Email: string;
+    UserRole: string;
+    Region: string;
+}
+
+const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, onClose, model, tenant, user }) => {
   const [activeTab, setActiveTab] = useState<'visualization' | 'accessPattern' | 'userDetails'>('visualization');
 
   if (!isOpen) return null;
@@ -26,6 +37,58 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
         return siloImg;
     }
   };
+
+  // We want to show one row per user, not per order.
+  // Let's filter unique users by email/name
+  const uniqueUsers = Object.values(mockData.reduce((acc, curr) => {
+      const key = curr.UserName;
+      if (!acc[key]) {
+          acc[key] = {
+            TenantId: curr.TenantId,
+            UserName: curr.UserName,
+            Email: curr.Email,
+            UserRole: curr.UserRole,
+            // Just inferring region from the first record for display
+            Region: curr.Region
+          };
+      }
+      return acc;
+  }, {} as Record<string, UserDetail>)).sort((a, b) => a.TenantId - b.TenantId);
+
+  const getTenantName = (id: number) => {
+      if (id === 1) return "Northwind Traders";
+      if (id === 2) return "Adventure Works";
+      if (id === 3) return "Contoso Ltd";
+      return "Unknown";
+  }
+
+  const getConnectionString = () => {
+      if (model === 'Database per Tenant') {
+          return `Server=tcp:demo.database.windows.net;Database=${tenant.replace(/\s+/g, '_')}_Db;User ID=app_user;Password=******;`;
+      } else if (model === 'Schema per Tenant') {
+          return `Server=tcp:demo.database.windows.net;Database=Shared_Db;Schema=${tenant.replace(/\s+/g, '')};User ID=app_user;Password=******;`;
+      } else {
+          return `Server=tcp:demo.database.windows.net;Database=Shared_Db;User ID=app_user;Password=******;`;
+      }
+  }
+
+  const getFilterLogic = () => {
+      if (model === 'Shared Database (RLS)') {
+          return (
+            <>
+<span className="text-blue-600 dark:text-blue-400 font-bold">WHERE</span> {'\n'}
+    TenantId = <span className="text-purple-600 dark:text-purple-400">'Guid-{tenant.substring(0,2).toUpperCase()}-883'</span> {'\n'}
+    <span className="text-slate-400">-- Auto-injected RLS filter</span>{'\n'}
+            </>
+          );
+      } else {
+          return (
+            <>
+    <span className="text-slate-400">-- No WHERE clause needed (Isolated by {model === 'Schema per Tenant' ? 'Schema' : 'Database'})</span>{'\n'}
+            </>
+          );
+      }
+  }
 
   return (
     <div className="fixed inset-0 z-[2147483647] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -99,8 +162,7 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
                 </div>
                 <pre className="bg-slate-800 text-slate-200 p-4 rounded text-xs font-mono overflow-x-auto border border-slate-700">
                   <code>
-                    Server=tcp:demo.database.windows.net;Database=
-                    <span className="text-theme-teal">Northwind_Db</span>;User ID=app_user;Password=******;
+                    {getConnectionString()}
                   </code>
                 </pre>
               </div>
@@ -117,9 +179,7 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
     SUM(Amount) as TotalSales {'\n'}
 <span className="text-blue-600 dark:text-blue-400 font-bold">FROM</span> {'\n'}
     SalesRecords {'\n'}
-<span className="text-blue-600 dark:text-blue-400 font-bold">WHERE</span> {'\n'}
-    TenantId = <span className="text-purple-600 dark:text-purple-400">'Guid-NW-883'</span> {'\n'}
-    <span className="text-slate-400">-- Auto-injected filter</span>{'\n'}
+{getFilterLogic()}
 <span className="text-blue-600 dark:text-blue-400 font-bold">GROUP BY</span> {'\n'}
     Region;
                   </code>
@@ -136,116 +196,44 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
                             <th className="px-6 py-3">Tenant</th>
                             <th className="px-6 py-3">Username</th>
                             <th className="px-6 py-3">User Email</th>
-                            <th className="px-6 py-3">Assigned Attributes (Regions)</th>
                             <th className="px-6 py-3">Access Scope</th>
+                            <th className="px-6 py-3">Role</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-600 dark:text-slate-300">
-                        <tr className="bg-blue-50 dark:bg-blue-900/20 font-medium text-slate-900 dark:text-white">
-                            <td className="px-6 py-3"><strong>Acme Corp</strong></td>
-                            <td className="px-6 py-3">Sophia Reynolds</td>
-                            <td className="px-6 py-3">sophia.reynolds@acmecorp.com</td>
-                            <td className="px-6 py-3">North America</td>
-                            <td className="px-6 py-3">Regional Manager (North America)</td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td className="px-6 py-3"><strong>Acme Corp</strong></td>
-                            <td className="px-6 py-3">James Carter</td>
-                            <td className="px-6 py-3">james.carter@acmecorp.com</td>
-                            <td className="px-6 py-3">Europe</td>
-                            <td className="px-6 py-3">Regional Manager (Europe)</td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td className="px-6 py-3"><strong>Acme Corp</strong></td>
-                            <td className="px-6 py-3">Olivia Bennett</td>
-                            <td className="px-6 py-3">olivia.bennett@acmecorp.com</td>
-                            <td className="px-6 py-3">Asia</td>
-                            <td className="px-6 py-3">Regional Manager (Asia)</td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td className="px-6 py-3"><strong>Acme Corp</strong></td>
-                            <td className="px-6 py-3">Ethan Patel</td>
-                            <td className="px-6 py-3">ethan.patel@acmecorp.com</td>
-                            <td className="px-6 py-3">Oceania</td>
-                            <td className="px-6 py-3">Regional Manager (Oceania)</td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td className="px-6 py-3"><strong>Acme Corp</strong></td>
-                            <td className="px-6 py-3">Ava Thompson</td>
-                            <td className="px-6 py-3">ava.thompson@acmecorp.com</td>
-                            <td className="px-6 py-3">North America, Europe, Asia, Oceania</td>
-                            <td className="px-6 py-3">Global Access (All Regions)</td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td className="px-6 py-3"><strong>Beta Inc</strong></td>
-                            <td className="px-6 py-3">Lucas Mitchell</td>
-                            <td className="px-6 py-3">lucas.mitchell@betaenterprise.com</td>
-                            <td className="px-6 py-3">North America</td>
-                            <td className="px-6 py-3">Regional Manager (North America)</td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td className="px-6 py-3"><strong>Beta Inc</strong></td>
-                            <td className="px-6 py-3">Isabella Hayes</td>
-                            <td className="px-6 py-3">isabella.hayes@betaenterprise.com</td>
-                            <td className="px-6 py-3">Europe</td>
-                            <td className="px-6 py-3">Regional Manager (Europe)</td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td className="px-6 py-3"><strong>Beta Inc</strong></td>
-                            <td className="px-6 py-3">Noah Sullivan</td>
-                            <td className="px-6 py-3">noah.sullivan@betaenterprise.com</td>
-                            <td className="px-6 py-3">Asia</td>
-                            <td className="px-6 py-3">Regional Manager (Asia)</td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td className="px-6 py-3"><strong>Beta Inc</strong></td>
-                            <td className="px-6 py-3">Emma Foster</td>
-                            <td className="px-6 py-3">emma.foster@betaenterprise.com</td>
-                            <td className="px-6 py-3">Oceania</td>
-                            <td className="px-6 py-3">Regional Manager (Oceania)</td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td className="px-6 py-3"><strong>Beta Inc</strong></td>
-                            <td className="px-6 py-3">Liam Brooks</td>
-                            <td className="px-6 py-3">liam.brooks@betaenterprise.com</td>
-                            <td className="px-6 py-3">North America, Europe, Asia, Oceania</td>
-                            <td className="px-6 py-3">Global Access (All Regions)</td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td className="px-6 py-3"><strong>Gamma Ltd</strong></td>
-                            <td className="px-6 py-3">Charlotte Evans</td>
-                            <td className="px-6 py-3">charlotte.evans@gammaindustries.com</td>
-                            <td className="px-6 py-3">North America</td>
-                            <td className="px-6 py-3">Regional Manager (North America)</td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td className="px-6 py-3"><strong>Gamma Ltd</strong></td>
-                            <td className="px-6 py-3">Benjamin Hughes</td>
-                            <td className="px-6 py-3">benjamin.hughes@gammaindustries.com</td>
-                            <td className="px-6 py-3">Europe</td>
-                            <td className="px-6 py-3">Regional Manager (Europe)</td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td className="px-6 py-3"><strong>Gamma Ltd</strong></td>
-                            <td className="px-6 py-3">Amelia Ward</td>
-                            <td className="px-6 py-3">amelia.ward@gammaindustries.com</td>
-                            <td className="px-6 py-3">Asia</td>
-                            <td className="px-6 py-3">Regional Manager (Asia)</td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td className="px-6 py-3"><strong>Gamma Ltd</strong></td>
-                            <td className="px-6 py-3">Elijah Scott</td>
-                            <td className="px-6 py-3">elijah.scott@gammaindustries.com</td>
-                            <td className="px-6 py-3">Oceania</td>
-                            <td className="px-6 py-3">Regional Manager (Oceania)</td>
-                        </tr>
-                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td className="px-6 py-3"><strong>Gamma Ltd</strong></td>
-                            <td className="px-6 py-3">Harper King</td>
-                            <td className="px-6 py-3">harper.king@gammaindustries.com</td>
-                            <td className="px-6 py-3">North America, Europe, Asia, Oceania</td>
-                            <td className="px-6 py-3">Global Access (All Regions)</td>
-                        </tr>
+                        {uniqueUsers.map((u, idx) => {
+                            const isSelected = u.UserName === user;
+                            return (
+                                <tr
+                                    key={idx}
+                                    className={`
+                                        transition-colors
+                                        ${isSelected
+                                            ? 'bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-l-fab-orange'
+                                            : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}
+                                    `}
+                                >
+                                    <td className="px-6 py-3 font-medium text-slate-900 dark:text-white">{getTenantName(u.TenantId)}</td>
+                                    <td className="px-6 py-3">
+                                        <div className="flex items-center gap-2">
+                                            {isSelected && <span className="material-symbols-outlined text-fab-orange text-sm">check_circle</span>}
+                                            {u.UserName}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-3 font-mono text-xs">{u.Email}</td>
+                                    <td className="px-6 py-3">{u.Region}</td>
+                                    <td className="px-6 py-3">
+                                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                            u.UserRole === 'Admin' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
+                                            u.UserRole === 'Manager' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                                            'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
+                                        }`}>
+                                            {u.UserRole}
+                                        </span>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                  </table>
              </div>

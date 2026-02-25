@@ -92,29 +92,6 @@ const Sidebar: React.FC<SidebarProps> = ({ model, setModel, tenant, setTenant, u
 
         <div className="h-px bg-white/10 my-2"></div>
 
-        <div className="flex flex-col gap-3">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-theme-teal">Documentation</h3>
-          <ul className="space-y-3 text-sm text-slate-300">
-            <li>
-              <a className="flex items-center gap-2 hover:text-white transition-colors group" href="#">
-                <span className="material-symbols-outlined text-[16px] text-theme-teal group-hover:scale-110 transition-transform">article</span>
-                Multi-Tenancy Architecture
-              </a>
-            </li>
-            <li>
-              <a className="flex items-center gap-2 hover:text-white transition-colors group" href="#">
-                <span className="material-symbols-outlined text-[16px] text-theme-teal group-hover:scale-110 transition-transform">code</span>
-                ASP.NET Core Implementation
-              </a>
-            </li>
-            <li>
-              <a className="flex items-center gap-2 hover:text-white transition-colors group" href="#">
-                <span className="material-symbols-outlined text-[16px] text-theme-teal group-hover:scale-110 transition-transform">security</span>
-                Security & Permissions
-              </a>
-            </li>
-          </ul>
-        </div>
       </div>
     </aside>
   );

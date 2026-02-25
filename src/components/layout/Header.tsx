@@ -22,7 +22,9 @@ const Header: React.FC<HeaderProps> = ({ onToggleModal, theme, toggleTheme, onTo
           <h1 className="text-lg font-bold tracking-wide">Bold Reports — Multi-Tenancy Demo</h1>
         </div>
       </div>
-      <div className="flex items-center gap-4 text-white/90">
+      <div className="flex items-center gap-2 text-white/90">
+
+        {/* Info/Modal Button */}
         <button
           onClick={onToggleModal}
           className="flex items-center justify-center p-2 rounded-full hover:bg-white/10 transition-colors"
@@ -31,6 +33,7 @@ const Header: React.FC<HeaderProps> = ({ onToggleModal, theme, toggleTheme, onTo
           <span className="material-symbols-outlined text-[20px]">info</span>
         </button>
 
+        {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
           className="flex items-center justify-center p-2 rounded-full hover:bg-white/10 transition-colors"
@@ -43,11 +46,26 @@ const Header: React.FC<HeaderProps> = ({ onToggleModal, theme, toggleTheme, onTo
 
         <div className="h-6 w-px bg-white/20 mx-2"></div>
 
-        <a className="text-sm hover:text-white transition-colors" href="#">Help</a>
-        <a className="text-sm hover:text-white transition-colors" href="#">Profile</a>
-        <div className="size-8 rounded-full bg-theme-teal/20 flex items-center justify-center border border-theme-teal/40 text-theme-teal font-bold text-xs">
-          JD
-        </div>
+        {/* Help Button */}
+        <a
+          href="#"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full hover:bg-white/10 hover:text-white transition-all group"
+        >
+          <span className="material-symbols-outlined text-[18px] text-theme-teal group-hover:text-white transition-colors">help</span>
+          <span>Help</span>
+        </a>
+
+        {/* Profile Button */}
+        <a
+          href="#"
+          className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-white/10 transition-all group ml-1"
+        >
+          <span className="text-sm font-medium group-hover:text-white transition-colors">Profile</span>
+          <div className="size-8 rounded-full bg-theme-teal/20 flex items-center justify-center border border-theme-teal/40 text-theme-teal font-bold text-xs shadow-sm ring-2 ring-transparent group-hover:ring-white/20 transition-all">
+            JD
+          </div>
+        </a>
+
       </div>
     </header>
   );
