@@ -27,7 +27,7 @@ interface ReportViewerProps {
 }
 
 const ReportViewer: React.FC<ReportViewerProps> = ({ tenantId, userId }) => {
-  const [authorizationToken, setAuthorizationToken] = useState<string | null>(null);
+  const [embedToken, setEmbedToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,8 +57,9 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ tenantId, userId }) => {
 
         const data = await response.json();
         if (data.access_token) {
-            console.log("Token received");
-            setAuthorizationToken(`bearer ${data.access_token}`);
+            console.log("Embed Token received");
+            // No bearer prefix as requested
+            setEmbedToken(data.access_token);
         } else {
             console.error("No access_token in response", data);
             setError("Invalid token response from server");
@@ -96,13 +97,13 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ tenantId, userId }) => {
                             Retry
                         </button>
                     </div>
-                ) : authorizationToken && BoldReportViewerComponent ? (
+                ) : embedToken && BoldReportViewerComponent ? (
                   <BoldReportViewerComponent
                     id="reportviewer-container"
                     reportServiceUrl={'https://cloud.boldreports.com/reporting/reportservice/api/Viewer'}
                     reportServerUrl={'https://cloud.boldreports.com/reporting/api/site/b1159702'}
-                    serviceAuthorizationToken={authorizationToken}
-                    reportPath={'/Sample Reports/Product Line Sales'}
+                    embedToken={embedToken}
+                    reportPath={'8e0df3f5-267f-45e1-8674-693d89133851'}
                     isResponsive={'true'}
                     style={{ height: '100%', width: '100%' }}
                   />

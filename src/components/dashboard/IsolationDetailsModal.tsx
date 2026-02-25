@@ -39,7 +39,6 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
   };
 
   // We want to show one row per user, not per order.
-  // Let's filter unique users by email/name
   const uniqueUsers = Object.values(mockData.reduce((acc, curr) => {
       const key = curr.UserName;
       if (!acc[key]) {
@@ -48,7 +47,6 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
             UserName: curr.UserName,
             Email: curr.Email,
             UserRole: curr.UserRole,
-            // Just inferring region from the first record for display
             Region: curr.Region
           };
       }
@@ -62,6 +60,10 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
       return "Unknown";
   }
 
+  // Find current user's role and details to simulate proper filtering
+  const currentUserDetail = uniqueUsers.find(u => u.UserName === user) || { UserRole: 'Viewer' };
+  const isTenantAdmin = currentUserDetail.UserRole === 'Admin';
+
   const getConnectionString = () => {
       if (model === 'Database per Tenant') {
           return `Server=tcp:demo.database.windows.net;Database=${tenant.replace(/\s+/g, '_')}_Db;User ID=app_user;Password=******;`;
@@ -73,20 +75,40 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
   }
 
   const getFilterLogic = () => {
+      const regionFilter = isTenantAdmin ? null : (
+          <>    AND Region = <span className="text-purple-600 dark:text-purple-400">'{currentUserDetail.Region}'</span> <span className="text-slate-400">-- Role-based filter</span>{'\n'}</>
+      );
+
       if (model === 'Shared Database (RLS)') {
           return (
             <>
 <span className="text-blue-600 dark:text-blue-400 font-bold">WHERE</span> {'\n'}
     TenantId = <span className="text-purple-600 dark:text-purple-400">'Guid-{tenant.substring(0,2).toUpperCase()}-883'</span> {'\n'}
     <span className="text-slate-400">-- Auto-injected RLS filter</span>{'\n'}
+{isTenantAdmin ? null : (
+<>    AND UserName = <span className="text-purple-600 dark:text-purple-400">'{user}'</span> <span className="text-slate-400">-- User context filter</span>{'\n'}</>
+)}
+{regionFilter}
             </>
           );
       } else {
-          return (
-            <>
-    <span className="text-slate-400">-- No WHERE clause needed (Isolated by {model === 'Schema per Tenant' ? 'Schema' : 'Database'})</span>{'\n'}
-            </>
-          );
+          // Database per Tenant or Schema per Tenant
+          // Even though DB is isolated, we still filter by user unless they are Admin of that tenant
+          if (isTenantAdmin) {
+               return (
+                <>
+    <span className="text-slate-400">-- No WHERE clause needed (Admin Access + Isolated DB)</span>{'\n'}
+                </>
+              );
+          } else {
+              return (
+                <>
+<span className="text-blue-600 dark:text-blue-400 font-bold">WHERE</span> {'\n'}
+    UserName = <span className="text-purple-600 dark:text-purple-400">'{user}'</span> {'\n'}
+    <span className="text-slate-400">-- User context filter within isolated DB</span>{'\n'}
+                </>
+              );
+          }
       }
   }
 
