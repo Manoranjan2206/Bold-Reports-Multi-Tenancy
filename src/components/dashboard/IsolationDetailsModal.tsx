@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import siloImg from '../../assets/silo.png';
 import schemaImg from '../../assets/schema.png';
 import rowImg from '../../assets/row.png';
 import { mockData } from '../../data/mockData';
+import type { SalesRecord } from '../../data/mockData';
 
 interface IsolationDetailsModalProps {
   isOpen: boolean;
@@ -12,18 +13,19 @@ interface IsolationDetailsModalProps {
   user: string;
 }
 
-interface UserDetail {
+interface EnrichedUserDetail {
     TenantId: number;
+    TenantName: string;
     UserName: string;
     Email: string;
     UserRole: string;
     Region: string;
+    DbMapping: string;
+    RlsFilter: string;
 }
 
 const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, onClose, model, tenant, user }) => {
   const [activeTab, setActiveTab] = useState<'visualization' | 'accessPattern' | 'userDetails'>('visualization');
-
-  if (!isOpen) return null;
 
   const getVisualizationImage = () => {
     switch (model) {
@@ -38,31 +40,82 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
     }
   };
 
-  // We want to show one row per user, not per order.
-  const uniqueUsers = Object.values(mockData.reduce((acc, curr) => {
-      const key = curr.UserName;
-      if (!acc[key]) {
-          acc[key] = {
-            TenantId: curr.TenantId,
-            UserName: curr.UserName,
-            Email: curr.Email,
-            UserRole: curr.UserRole,
-            Region: curr.Region
-          };
-      }
-      return acc;
-  }, {} as Record<string, UserDetail>)).sort((a, b) => a.TenantId - b.TenantId);
-
   const getTenantName = (id: number) => {
       if (id === 1) return "Northwind Traders";
       if (id === 2) return "Adventure Works";
       if (id === 3) return "Contoso Ltd";
-      return "Unknown";
-  }
+      return "Unknown Tenant";
+  };
 
-  // Find current user's role and details to simulate proper filtering
-  const currentUserDetail = uniqueUsers.find(u => u.UserName === user) || { UserRole: 'Viewer' };
-  const isTenantAdmin = currentUserDetail.UserRole === 'Admin';
+  const getTenantSlug = (id: number) => {
+      if (id === 1) return "northwind_traders";
+      if (id === 2) return "adventure_works";
+      if (id === 3) return "contoso_ltd";
+      return "unknown";
+  };
+
+  const getTenantDomain = (id: number) => {
+      if (id === 1) return "northwindtraders.com";
+      if (id === 2) return "adventure-works.com";
+      if (id === 3) return "contoso.com";
+      return "example.com";
+  };
+
+  // Group users by TenantId
+  const groupedUsers = useMemo(() => {
+    // 1. Flatten mockData to unique (TenantId, UserName) tuples
+    const uniqueUserMap = new Map<string, EnrichedUserDetail>();
+
+    mockData.forEach((record: SalesRecord) => {
+        const key = `${record.TenantId}-${record.UserName}`;
+        if (!uniqueUserMap.has(key)) {
+            const email = `${record.UserName.toLowerCase().replace(' ', '.')}@${getTenantDomain(record.TenantId)}`;
+            const dbMapping = `'sales_analysis_db':'${getTenantSlug(record.TenantId)}_sales_analysis'`;
+
+            // Infer role/RLS based on mock data patterns or just random assignment for demo variety
+            // In a real app, this comes from the auth provider
+            const isManager = record.UserName.startsWith("O") || record.UserName.startsWith("J");
+            const userRole = isManager ? "Manager" : "Viewer";
+
+            const rlsFilter = isManager
+                ? `Region=${record.Region}, Other (Client-configured RLS)`
+                : `Region=${record.Region} (Preconfigured RLS)`;
+
+            uniqueUserMap.set(key, {
+                TenantId: record.TenantId,
+                TenantName: getTenantName(record.TenantId),
+                UserName: record.UserName,
+                Email: email,
+                UserRole: userRole,
+                Region: record.Region,
+                DbMapping: dbMapping,
+                RlsFilter: rlsFilter
+            });
+        }
+    });
+
+    const allUsers = Array.from(uniqueUserMap.values());
+
+    // Group by TenantId
+    const groups: Record<number, EnrichedUserDetail[]> = {};
+    allUsers.forEach(u => {
+        if (!groups[u.TenantId]) groups[u.TenantId] = [];
+        groups[u.TenantId].push(u);
+    });
+
+    // Sort tenants by ID
+    return Object.keys(groups).map(id => Number(id)).sort((a,b) => a - b).map(id => ({
+        tenantId: id,
+        tenantName: getTenantName(id),
+        users: groups[id]
+    }));
+  }, []);
+
+  // Find current user's details for access pattern logic
+  // We just take the first matching user record regardless of tenant context for this specific demo logic,
+  // or filter by the passed `tenant` prop if needed.
+  // For simplicity in the "Access Pattern" tab, we assume the user is valid.
+  const isTenantAdmin = user.includes("Admin");
 
   const getConnectionString = () => {
       if (model === 'Database per Tenant') {
@@ -72,11 +125,11 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
       } else {
           return `Server=tcp:demo.database.windows.net;Database=Shared_Db;User ID=app_user;Password=******;`;
       }
-  }
+  };
 
   const getFilterLogic = () => {
       const regionFilter = isTenantAdmin ? null : (
-          <>    AND Region = <span className="text-purple-600 dark:text-purple-400">'{currentUserDetail.Region}'</span> <span className="text-slate-400">-- Role-based filter</span>{'\n'}</>
+          <>    AND Region = <span className="text-purple-600 dark:text-purple-400">'North America'</span> <span className="text-slate-400">-- Role-based filter</span>{'\n'}</>
       );
 
       if (model === 'Shared Database (RLS)') {
@@ -92,8 +145,6 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
             </>
           );
       } else {
-          // Database per Tenant or Schema per Tenant
-          // Even though DB is isolated, we still filter by user unless they are Admin of that tenant
           if (isTenantAdmin) {
                return (
                 <>
@@ -110,13 +161,15 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
               );
           }
       }
-  }
+  };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[2147483647] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
           <h2 className="text-lg font-bold text-slate-800 dark:text-white">Data Isolation Details</h2>
           <button onClick={onClose} className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
             <span className="material-symbols-outlined">close</span>
@@ -124,7 +177,7 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-slate-200 dark:border-slate-700 px-6 overflow-x-auto">
+        <div className="flex border-b border-slate-200 dark:border-slate-700 px-6 shrink-0 bg-white dark:bg-slate-800">
           <button
             onClick={() => setActiveTab('visualization')}
             className={`py-3 px-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
@@ -160,7 +213,7 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
         {/* Content */}
         <div className="p-6 overflow-y-auto flex-1 bg-slate-50 dark:bg-slate-900/50">
           {activeTab === 'visualization' && (
-            <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="flex flex-col items-center justify-center space-y-4 h-full">
               <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 w-full flex justify-center">
                  <img
                    src={getVisualizationImage()}
@@ -211,51 +264,68 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
           )}
 
           {activeTab === 'userDetails' && (
-             <div className="overflow-x-auto bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
-                 <table className="min-w-full text-left text-sm whitespace-nowrap">
-                    <thead className="bg-[#f0f4f8] dark:bg-slate-900/50 text-slate-700 dark:text-slate-300 uppercase font-semibold text-xs border-b border-slate-200 dark:border-slate-700">
+             <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                 <table className="min-w-full text-left text-sm whitespace-nowrap border-collapse">
+                    <thead className="bg-[#f0f4f8] dark:bg-slate-900/50 text-slate-700 dark:text-slate-300 font-bold text-xs border-b border-slate-200 dark:border-slate-700">
                         <tr>
-                            <th className="px-6 py-3">Tenant</th>
-                            <th className="px-6 py-3">Username</th>
-                            <th className="px-6 py-3">User Email</th>
-                            <th className="px-6 py-3">Access Scope</th>
-                            <th className="px-6 py-3">Role</th>
+                            <th className="px-6 py-4 border-r border-slate-200 dark:border-slate-700">Tenant</th>
+                            <th className="px-6 py-4 border-r border-slate-200 dark:border-slate-700">Username</th>
+                            <th className="px-6 py-4 border-r border-slate-200 dark:border-slate-700">User Email</th>
+                            <th className="px-6 py-4 border-r border-slate-200 dark:border-slate-700">Database Mapping (Custom Attribute)</th>
+                            <th className="px-6 py-4">Row-Level Security (Filter Parameter)</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-600 dark:text-slate-300">
-                        {uniqueUsers.map((u, idx) => {
-                            const isSelected = u.UserName === user;
-                            return (
-                                <tr
-                                    key={idx}
-                                    className={`
-                                        transition-colors
-                                        ${isSelected
-                                            ? 'bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-l-fab-orange'
-                                            : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}
-                                    `}
-                                >
-                                    <td className="px-6 py-3 font-medium text-slate-900 dark:text-white">{getTenantName(u.TenantId)}</td>
-                                    <td className="px-6 py-3">
-                                        <div className="flex items-center gap-2">
-                                            {isSelected && <span className="material-symbols-outlined text-fab-orange text-sm">check_circle</span>}
-                                            {u.UserName}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-3 font-mono text-xs">{u.Email}</td>
-                                    <td className="px-6 py-3">{u.Region}</td>
-                                    <td className="px-6 py-3">
-                                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                            u.UserRole === 'Admin' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
-                                            u.UserRole === 'Manager' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-                                            'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
-                                        }`}>
-                                            {u.UserRole}
-                                        </span>
-                                    </td>
-                                </tr>
-                            );
-                        })}
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700 text-slate-600 dark:text-slate-300">
+                        {groupedUsers.map((group) => (
+                            <React.Fragment key={group.tenantId}>
+                                {group.users.map((u, idx) => {
+                                    const isFirst = idx === 0;
+                                    const isSelected = u.UserName === user; // Highlight if matches current user context
+                                    return (
+                                        <tr
+                                            key={`${u.TenantId}-${u.UserName}`}
+                                            className={`
+                                                transition-colors
+                                                ${isSelected ? 'bg-yellow-50 dark:bg-yellow-900/10' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}
+                                            `}
+                                        >
+                                            {isFirst && (
+                                                <td
+                                                    rowSpan={group.users.length}
+                                                    className="px-6 py-4 font-medium text-slate-900 dark:text-white bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 align-middle"
+                                                >
+                                                    {group.tenantName}
+                                                </td>
+                                            )}
+
+                                            <td className="px-6 py-4 border-r border-slate-200 dark:border-slate-700 bg-inherit">
+                                                <div className="flex items-center gap-2">
+                                                    {u.UserName}
+                                                    {isSelected && <span className="material-symbols-outlined text-fab-orange text-sm" title="Active Context">check_circle</span>}
+                                                </div>
+                                            </td>
+
+                                            <td className="px-6 py-4 border-r border-slate-200 dark:border-slate-700 font-mono text-xs bg-inherit">
+                                                {u.Email}
+                                            </td>
+
+                                            {isFirst && (
+                                                <td
+                                                    rowSpan={group.users.length}
+                                                    className="px-6 py-4 font-mono text-xs text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 align-middle"
+                                                >
+                                                    {u.DbMapping}
+                                                </td>
+                                            )}
+
+                                            <td className="px-6 py-4 text-xs bg-inherit">
+                                                {u.RlsFilter}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </React.Fragment>
+                        ))}
                     </tbody>
                  </table>
              </div>
@@ -263,7 +333,7 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex justify-end bg-slate-50 dark:bg-slate-800">
+        <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex justify-end bg-slate-50 dark:bg-slate-800 shrink-0">
             <button
                 onClick={onClose}
                 className="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded text-sm font-medium transition-colors"
