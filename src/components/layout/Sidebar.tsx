@@ -1,4 +1,5 @@
 import React from 'react';
+import { tenants } from '../../data/tenantConfig';
 
 interface SidebarProps {
   model: string;
@@ -53,9 +54,9 @@ const Sidebar: React.FC<SidebarProps> = ({ model, setModel, tenant, setTenant, u
               onChange={(e) => setTenant(e.target.value)}
               className="w-full bg-black/20 border border-white/20 text-white text-sm rounded focus:ring-theme-teal focus:border-theme-teal block p-2.5 appearance-none"
             >
-              <option>Northwind Traders</option>
-              <option>Adventure Works</option>
-              <option>Contoso Ltd</option>
+              {tenants.map((t) => (
+                <option key={t.id} value={t.name}>{t.name}</option>
+              ))}
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-300">
               <span className="material-symbols-outlined text-sm">expand_more</span>

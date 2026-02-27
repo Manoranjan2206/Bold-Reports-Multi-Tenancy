@@ -4,6 +4,7 @@ import schemaImg from '../../assets/schema.png';
 import rowImg from '../../assets/row.png';
 import { mockData } from '../../data/mockData';
 import type { SalesRecord } from '../../data/mockData';
+import { getTenantById } from '../../data/tenantConfig';
 
 interface IsolationDetailsModalProps {
   isOpen: boolean;
@@ -41,24 +42,18 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
   };
 
   const getTenantName = (id: number) => {
-      if (id === 1) return "Northwind Traders";
-      if (id === 2) return "Adventure Works";
-      if (id === 3) return "Contoso Ltd";
-      return "Unknown Tenant";
+      const tenant = getTenantById(id);
+      return tenant ? tenant.name : "Unknown Tenant";
   };
 
   const getTenantSlug = (id: number) => {
-      if (id === 1) return "northwind_traders";
-      if (id === 2) return "adventure_works";
-      if (id === 3) return "contoso_ltd";
-      return "unknown";
+      const tenant = getTenantById(id);
+      return tenant ? tenant.slug : "unknown";
   };
 
   const getTenantDomain = (id: number) => {
-      if (id === 1) return "northwindtraders.com";
-      if (id === 2) return "adventure-works.com";
-      if (id === 3) return "contoso.com";
-      return "example.com";
+      const tenant = getTenantById(id);
+      return tenant ? tenant.domain : "example.com";
   };
 
   // Group users by TenantId
