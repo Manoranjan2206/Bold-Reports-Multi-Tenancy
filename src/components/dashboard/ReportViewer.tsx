@@ -64,9 +64,10 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ tenantId, userId }) => {
             console.error("No access_token in response", data);
             setError("Invalid token response from server");
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Failed to fetch token:", err);
-        setError(err.message || "Failed to fetch secure token");
+        const errorMessage = err instanceof Error ? err.message : "Failed to fetch secure token";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
