@@ -2,8 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import axios from 'axios';
 import { config } from './config.js';
+import { fileURLToPath } from 'url';
 
-const app = express();
+export const app = express();
 const port = 3001;
 
 app.use(cors());
@@ -41,6 +42,8 @@ app.post('/api/token', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
