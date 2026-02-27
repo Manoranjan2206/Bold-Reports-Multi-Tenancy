@@ -13,6 +13,17 @@ app.post('/api/token', async (req, res) => {
   try {
     const { tenantId, userId } = req.body;
 
+    // Validate inputs
+    // Ensure tenantId and userId are present and are numbers (or numeric strings)
+    // We check for presence and then validate that they can be coerced to finite numbers
+    // Stricter check: disallow null, empty strings, and arrays
+    if (tenantId === undefined || userId === undefined ||
+        tenantId === null || userId === null ||
+        String(tenantId).trim() === '' || String(userId).trim() === '' ||
+        isNaN(Number(tenantId)) || isNaN(Number(userId))) {
+      return res.status(400).json({ error: 'Invalid input parameters. tenantId and userId must be numeric.' });
+    }
+
     // Construct the request payload for Bold Reports Token API
     // Matching the curl command exactly
     const tokenRequest = {
