@@ -3,12 +3,7 @@ import Layout from './components/layout/Layout'
 import IsolationDetailsModal from './components/dashboard/IsolationDetailsModal'
 import ReportViewer from './components/dashboard/ReportViewer'
 import { mockData } from './data/mockData'
-
-const TENANT_MAPPING: Record<string, number> = {
-  "Northwind Traders": 1,
-  "Adventure Works": 2,
-  "Contoso Ltd": 3
-}
+import { TENANT_MAPPING } from './data/tenantConfig'
 
 function App() {
   // --- Selection State (Dropdowns in Sidebar) ---
