@@ -43,7 +43,6 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ tenantId, userId }) => {
       setLoading(true);
       setError(null);
       try {
-        console.log(`Fetching token for TenantId=${tenantId}, UserId=${userId}`);
         const response = await fetch('/api/token', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -57,7 +56,6 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ tenantId, userId }) => {
 
         const data = await response.json();
         if (data.access_token) {
-            console.log("Embed Token received");
             // No bearer prefix as requested
             setEmbedToken(data.access_token);
         } else {
