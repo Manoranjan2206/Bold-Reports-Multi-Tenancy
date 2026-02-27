@@ -27,9 +27,10 @@ const Sidebar: React.FC<SidebarProps> = ({ model, setModel, tenant, setTenant, u
 
         {/* Data Isolation Model */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-medium text-slate-300">Data Isolation Model</label>
+          <label htmlFor="model-select" className="text-xs font-medium text-slate-300">Data Isolation Model</label>
           <div className="relative">
             <select
+              id="model-select"
               value={model}
               onChange={(e) => setModel(e.target.value)}
               className="w-full bg-black/20 border border-white/20 text-white text-sm rounded focus:ring-theme-teal focus:border-theme-teal block p-2.5 appearance-none"
@@ -46,9 +47,10 @@ const Sidebar: React.FC<SidebarProps> = ({ model, setModel, tenant, setTenant, u
 
         {/* Tenant */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-medium text-slate-300">Tenant</label>
+          <label htmlFor="tenant-select" className="text-xs font-medium text-slate-300">Tenant</label>
           <div className="relative">
             <select
+              id="tenant-select"
               value={tenant}
               onChange={(e) => setTenant(e.target.value)}
               className="w-full bg-black/20 border border-white/20 text-white text-sm rounded focus:ring-theme-teal focus:border-theme-teal block p-2.5 appearance-none"
@@ -65,9 +67,10 @@ const Sidebar: React.FC<SidebarProps> = ({ model, setModel, tenant, setTenant, u
 
         {/* User */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-medium text-slate-300">User</label>
+          <label htmlFor="user-select" className="text-xs font-medium text-slate-300">User</label>
           <div className="relative">
             <select
+              id="user-select"
               value={user}
               onChange={(e) => setUser(e.target.value)}
               className="w-full bg-black/20 border border-white/20 text-white text-sm rounded focus:ring-theme-teal focus:border-theme-teal block p-2.5 appearance-none"
