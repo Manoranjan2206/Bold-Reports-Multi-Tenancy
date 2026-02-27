@@ -4,6 +4,7 @@ import schemaImg from '../../assets/schema.png';
 import rowImg from '../../assets/row.png';
 import { mockData } from '../../data/mockData';
 import type { SalesRecord } from '../../data/mockData';
+import { getTenantById } from '../../data/tenantConfig';
 
 interface IsolationDetailsModalProps {
   isOpen: boolean;
@@ -40,27 +41,6 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
     }
   };
 
-  const getTenantName = (id: number) => {
-      if (id === 1) return "Northwind Traders";
-      if (id === 2) return "Adventure Works";
-      if (id === 3) return "Contoso Ltd";
-      return "Unknown Tenant";
-  };
-
-  const getTenantSlug = (id: number) => {
-      if (id === 1) return "northwind_traders";
-      if (id === 2) return "adventure_works";
-      if (id === 3) return "contoso_ltd";
-      return "unknown";
-  };
-
-  const getTenantDomain = (id: number) => {
-      if (id === 1) return "northwindtraders.com";
-      if (id === 2) return "adventure-works.com";
-      if (id === 3) return "contoso.com";
-      return "example.com";
-  };
-
   // Group users by TenantId
   const groupedUsers = useMemo(() => {
     // 1. Flatten mockData to unique (TenantId, UserName) tuples
@@ -69,8 +49,13 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
     mockData.forEach((record: SalesRecord) => {
         const key = `${record.TenantId}-${record.UserName}`;
         if (!uniqueUserMap.has(key)) {
-            const email = `${record.UserName.toLowerCase().replace(' ', '.')}@${getTenantDomain(record.TenantId)}`;
-            const dbMapping = `'sales_analysis_db':'${getTenantSlug(record.TenantId)}_sales_analysis'`;
+            const tenantConfig = getTenantById(record.TenantId);
+            const tenantName = tenantConfig?.name || "Unknown Tenant";
+            const tenantDomain = tenantConfig?.domain || "example.com";
+            const tenantSlug = tenantConfig?.slug || "unknown";
+
+            const email = `${record.UserName.toLowerCase().replace(' ', '.')}@${tenantDomain}`;
+            const dbMapping = `'sales_analysis_db':'${tenantSlug}_sales_analysis'`;
 
             // Infer role/RLS based on mock data patterns or just random assignment for demo variety
             // In a real app, this comes from the auth provider
@@ -83,7 +68,7 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
 
             uniqueUserMap.set(key, {
                 TenantId: record.TenantId,
-                TenantName: getTenantName(record.TenantId),
+                TenantName: tenantName,
                 UserName: record.UserName,
                 Email: email,
                 UserRole: userRole,
@@ -106,7 +91,7 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
     // Sort tenants by ID
     return Object.keys(groups).map(id => Number(id)).sort((a,b) => a - b).map(id => ({
         tenantId: id,
-        tenantName: getTenantName(id),
+        tenantName: getTenantById(id)?.name || "Unknown Tenant",
         users: groups[id]
     }));
   }, []);

@@ -3,22 +3,19 @@ import Layout from './components/layout/Layout'
 import IsolationDetailsModal from './components/dashboard/IsolationDetailsModal'
 import ReportViewer from './components/dashboard/ReportViewer'
 import { mockData } from './data/mockData'
+import { tenants } from './data/tenantConfig'
 
-const TENANT_MAPPING: Record<string, number> = {
-  "Northwind Traders": 1,
-  "Adventure Works": 2,
-  "Contoso Ltd": 3
-}
+const TENANT_MAPPING = tenants.reduce((acc, t) => ({ ...acc, [t.name]: t.id }), {} as Record<string, number>);
 
 function App() {
   // --- Selection State (Dropdowns in Sidebar) ---
   const [selectedModel, setSelectedModel] = useState('Database per Tenant')
-  const [selectedTenant, setSelectedTenant] = useState('Northwind Traders')
+  const [selectedTenant, setSelectedTenant] = useState(tenants[0].name)
   const [selectedUser, setSelectedUser] = useState('')
 
   // --- Applied State (Passed to Dashboard/Report) ---
   const [appliedModel, setAppliedModel] = useState('Database per Tenant')
-  const [appliedTenant, setAppliedTenant] = useState('Northwind Traders')
+  const [appliedTenant, setAppliedTenant] = useState(tenants[0].name)
   const [appliedUser, setAppliedUser] = useState('')
 
   const [isModalOpen, setIsModalOpen] = useState(false)
