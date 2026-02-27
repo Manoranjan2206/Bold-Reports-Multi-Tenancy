@@ -70,7 +70,15 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
         const key = `${record.TenantId}-${record.UserName}`;
         if (!uniqueUserMap.has(key)) {
             const email = `${record.UserName.toLowerCase().replace(' ', '.')}@${getTenantDomain(record.TenantId)}`;
-            const dbMapping = `'sales_analysis_db':'${getTenantSlug(record.TenantId)}_sales_analysis'`;
+
+            let dbMapping = "";
+            if (model === 'Database per Tenant') {
+                 dbMapping = `'sales_analysis_db':'${getTenantSlug(record.TenantId)}_sales_analysis'`;
+            } else if (model === 'Schema per Tenant') {
+                 dbMapping = `'sales_analysis_db':'Shared_Db', 'schema':'${getTenantSlug(record.TenantId)}'`;
+            } else {
+                 dbMapping = `'sales_analysis_db':'Shared_Db'`;
+            }
 
             // Infer role/RLS based on mock data patterns or just random assignment for demo variety
             // In a real app, this comes from the auth provider
@@ -109,13 +117,15 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
         tenantName: getTenantName(id),
         users: groups[id]
     }));
-  }, []);
+  }, [model]);
 
   // Find current user's details for access pattern logic
   // We just take the first matching user record regardless of tenant context for this specific demo logic,
   // or filter by the passed `tenant` prop if needed.
   // For simplicity in the "Access Pattern" tab, we assume the user is valid.
   const isTenantAdmin = user.includes("Admin");
+
+  const currentUserRegion = useMemo(() => mockData.find(u => u.UserName === user)?.Region || 'North America', [user]);
 
   const getConnectionString = () => {
       if (model === 'Database per Tenant') {
@@ -144,6 +154,22 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
 {regionFilter}
             </>
           );
+      } else if (model === 'Schema per Tenant') {
+          if (isTenantAdmin) {
+               return (
+                <>
+    <span className="text-slate-400">-- No WHERE clause needed (Admin Access + Isolated Schema)</span>{'\n'}
+                </>
+              );
+          } else {
+              return (
+                <>
+<span className="text-blue-600 dark:text-blue-400 font-bold">WHERE</span> {'\n'}
+    Region = <span className="text-purple-600 dark:text-purple-400">'{currentUserRegion}'</span> {'\n'}
+    <span className="text-slate-400">-- Region-based filter within isolated Schema</span>{'\n'}
+                </>
+              );
+          }
       } else {
           if (isTenantAdmin) {
                return (

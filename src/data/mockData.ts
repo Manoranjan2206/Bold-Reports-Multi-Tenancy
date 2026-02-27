@@ -26,8 +26,8 @@ export const mockData: SalesRecord[] = [
       "ImageUrl": "https://picsum.photos/seed/NorthAmerica/200/200?text=Sales+Image"
     },
     {
-      "UserId": 1,
-      "UserName": "Sophia Reynolds",
+      "UserId": 6,
+      "UserName": "Sophie Anderson",
       "Region": "North America",
       "Country": "Canada",
       "TenantId": 3,
@@ -87,8 +87,8 @@ export const mockData: SalesRecord[] = [
       "ImageUrl": "https://picsum.photos/seed/NorthAmerica/200/200?text=Sales+Image"
     },
     {
-      "UserId": 2,
-      "UserName": "James Carter",
+      "UserId": 7,
+      "UserName": "Jackson White",
       "Region": "North America",
       "Country": "USA",
       "TenantId": 1,
@@ -148,8 +148,8 @@ export const mockData: SalesRecord[] = [
       "ImageUrl": "https://picsum.photos/seed/NorthAmerica/200/200?text=Sales+Image"
     },
     {
-      "UserId": 3,
-      "UserName": "Olivia Bennett",
+      "UserId": 8,
+      "UserName": "Olive Green",
       "Region": "North America",
       "Country": "Mexico",
       "TenantId": 2,
@@ -209,8 +209,8 @@ export const mockData: SalesRecord[] = [
       "ImageUrl": "https://picsum.photos/seed/NorthAmerica/200/200?text=Sales+Image"
     },
     {
-      "UserId": 4,
-      "UserName": "Ethan Patel",
+      "UserId": 9,
+      "UserName": "Evan Wright",
       "Region": "North America",
       "Country": "Mexico",
       "TenantId": 3,
@@ -270,8 +270,8 @@ export const mockData: SalesRecord[] = [
       "ImageUrl": "https://picsum.photos/seed/NorthAmerica/200/200?text=Sales+Image"
     },
     {
-      "UserId": 5,
-      "UserName": "Ava Thompson",
+      "UserId": 10,
+      "UserName": "Avery Taylor",
       "Region": "North America",
       "Country": "USA",
       "TenantId": 1,
