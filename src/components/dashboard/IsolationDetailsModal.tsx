@@ -4,6 +4,7 @@ import schemaImg from '../../assets/schema.png';
 import rowImg from '../../assets/row.png';
 import { mockData } from '../../data/mockData';
 import type { SalesRecord } from '../../data/mockData';
+import { getConnectionString } from '../../utils/isolationUtils';
 
 interface IsolationDetailsModalProps {
   isOpen: boolean;
@@ -117,16 +118,6 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
   // For simplicity in the "Access Pattern" tab, we assume the user is valid.
   const isTenantAdmin = user.includes("Admin");
 
-  const getConnectionString = () => {
-      if (model === 'Database per Tenant') {
-          return `Server=tcp:demo.database.windows.net;Database=${tenant.replace(/\s+/g, '_')}_Db;User ID=app_user;Password=******;`;
-      } else if (model === 'Schema per Tenant') {
-          return `Server=tcp:demo.database.windows.net;Database=Shared_Db;Schema=${tenant.replace(/\s+/g, '')};User ID=app_user;Password=******;`;
-      } else {
-          return `Server=tcp:demo.database.windows.net;Database=Shared_Db;User ID=app_user;Password=******;`;
-      }
-  };
-
   const getFilterLogic = () => {
       const regionFilter = isTenantAdmin ? null : (
           <>    AND Region = <span className="text-purple-600 dark:text-purple-400">'North America'</span> <span className="text-slate-400">-- Role-based filter</span>{'\n'}</>
@@ -237,7 +228,7 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
                 </div>
                 <pre className="bg-slate-800 text-slate-200 p-4 rounded text-xs font-mono overflow-x-auto border border-slate-700">
                   <code>
-                    {getConnectionString()}
+                    {getConnectionString(model, tenant)}
                   </code>
                 </pre>
               </div>
