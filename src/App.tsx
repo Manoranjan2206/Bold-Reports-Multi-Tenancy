@@ -30,7 +30,11 @@ function App() {
   const selectedTenantData = useMemo(() => mockData.filter(d => d.TenantId === selectedTenantId), [selectedTenantId])
 
   const availableUsers = useMemo(() => {
-     const users = Array.from(new Set(selectedTenantData.map(d => d.UserName))).sort()
+     const uniqueUsers = new Set<string>();
+     for (const d of selectedTenantData) {
+       uniqueUsers.add(d.UserName);
+     }
+     const users = Array.from(uniqueUsers).sort();
      return users.length > 0 ? users : ['No Users Found']
   }, [selectedTenantData])
 
