@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import Layout from './components/layout/Layout'
 import IsolationDetailsModal from './components/dashboard/IsolationDetailsModal'
 import ReportViewer from './components/dashboard/ReportViewer'
-import { mockData } from './data/mockData'
+import { mockDataByTenant } from './data/mockData'
 
 const TENANT_MAPPING: Record<string, number> = {
   "Northwind Traders": 1,
@@ -27,7 +27,7 @@ function App() {
 
   // 1. Calculate available users based on *Selected* Tenant
   const selectedTenantId = TENANT_MAPPING[selectedTenant] || 1
-  const selectedTenantData = useMemo(() => mockData.filter(d => d.TenantId === selectedTenantId), [selectedTenantId])
+  const selectedTenantData = useMemo(() => mockDataByTenant[selectedTenantId] || [], [selectedTenantId])
 
   const availableUsers = useMemo(() => {
      const users = Array.from(new Set(selectedTenantData.map(d => d.UserName))).sort()
@@ -46,7 +46,7 @@ function App() {
 
   // 2. Derive Applied Data for Dashboard based on *Applied* state
   const appliedTenantId = TENANT_MAPPING[appliedTenant] || 1
-  const appliedTenantData = useMemo(() => mockData.filter(d => d.TenantId === appliedTenantId), [appliedTenantId])
+  const appliedTenantData = useMemo(() => mockDataByTenant[appliedTenantId] || [], [appliedTenantId])
 
 
   // 3. Handle Refresh Button Click
@@ -61,7 +61,7 @@ function App() {
   // Initialize applied state correctly on first render if needed, or ensure defaults match.
   const effectiveAppliedUser = useMemo(() => {
       if (appliedUser) return appliedUser;
-      const initialTenantData = mockData.filter(d => d.TenantId === 1);
+      const initialTenantData = mockDataByTenant[1] || [];
       const initialUsers = Array.from(new Set(initialTenantData.map(d => d.UserName))).sort();
       return initialUsers[0] || '';
   }, [appliedUser]);

@@ -440,3 +440,11 @@ export const mockData: SalesRecord[] = [
       "ImageUrl": "https://picsum.photos/seed/NorthAmerica/200/200?text=Sales+Image"
     }
   ]
+
+export const mockDataByTenant = mockData.reduce((acc, record) => {
+    if (!acc[record.TenantId]) {
+        acc[record.TenantId] = []
+    }
+    acc[record.TenantId].push(record)
+    return acc
+}, {} as Record<number, SalesRecord[]>)

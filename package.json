@@ -19,6 +19,7 @@
     "create-react-class": "^15.7.0",
     "express": "^5.2.1",
     "jquery": "^3.7.1",
+    "playwright": "^1.58.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
