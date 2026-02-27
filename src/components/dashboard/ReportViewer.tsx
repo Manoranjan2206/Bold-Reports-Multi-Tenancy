@@ -30,13 +30,25 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ tenantId, userId }) => {
   const [embedToken, setEmbedToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const tokenCache = React.useRef<Record<string, string>>({});
 
   // Effect to fetch token when tenant or user changes
   useEffect(() => {
+    let isMounted = true;
     const fetchToken = async () => {
       // Basic validation to prevent sending bad requests
       if (!tenantId || !userId) {
           console.warn("Skipping token fetch: Missing tenantId or userId", { tenantId, userId });
+          return;
+      }
+
+      // Check Cache
+      const cacheKey = `${tenantId}-${userId}`;
+      if (tokenCache.current[cacheKey]) {
+          console.log(`Using cached token for ${cacheKey}`);
+          setEmbedToken(tokenCache.current[cacheKey]);
+          setError(null);
+          setLoading(false);
           return;
       }
 
@@ -56,23 +68,35 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ tenantId, userId }) => {
         }
 
         const data = await response.json();
-        if (data.access_token) {
-            console.log("Embed Token received");
-            // No bearer prefix as requested
-            setEmbedToken(data.access_token);
-        } else {
-            console.error("No access_token in response", data);
-            setError("Invalid token response from server");
+        if (isMounted) {
+            if (data.access_token) {
+                console.log("Embed Token received");
+                // Cache the token
+                tokenCache.current[cacheKey] = data.access_token;
+                // No bearer prefix as requested
+                setEmbedToken(data.access_token);
+            } else {
+                console.error("No access_token in response", data);
+                setError("Invalid token response from server");
+            }
         }
       } catch (err: any) {
-        console.error("Failed to fetch token:", err);
-        setError(err.message || "Failed to fetch secure token");
+        if (isMounted) {
+            console.error("Failed to fetch token:", err);
+            setError(err.message || "Failed to fetch secure token");
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+            setLoading(false);
+        }
       }
     };
 
     fetchToken();
+
+    return () => {
+        isMounted = false;
+    };
   }, [tenantId, userId]);
 
   return (
