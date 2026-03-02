@@ -3,12 +3,7 @@ import Layout from './components/layout/Layout'
 import IsolationDetailsModal from './components/dashboard/IsolationDetailsModal'
 import ReportViewer from './components/dashboard/ReportViewer'
 import { mockData } from './data/mockData'
-
-const TENANT_MAPPING: Record<string, number> = {
-  "Northwind Traders": 1,
-  "Adventure Works": 2,
-  "Contoso Ltd": 3
-}
+import { getTenantId, getAvailableUsers, getEffectiveUser } from './utils/userSelectionUtils'
 
 function App() {
   // --- Selection State (Dropdowns in Sidebar) ---
@@ -26,26 +21,21 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
   // 1. Calculate available users based on *Selected* Tenant
-  const selectedTenantId = TENANT_MAPPING[selectedTenant] || 1
-  const selectedTenantData = useMemo(() => mockData.filter(d => d.TenantId === selectedTenantId), [selectedTenantId])
+  const selectedTenantId = getTenantId(selectedTenant)
 
   const availableUsers = useMemo(() => {
-     const users = Array.from(new Set(selectedTenantData.map(d => d.UserName))).sort()
-     return users.length > 0 ? users : ['No Users Found']
-  }, [selectedTenantData])
+    return getAvailableUsers(selectedTenantId, mockData)
+  }, [selectedTenantId])
 
   // Derive "Effective" Selected User
   // Instead of syncing state with useEffect, we compute the valid user on the fly.
   const effectiveSelectedUser = useMemo(() => {
-    if (availableUsers.includes(selectedUser)) {
-      return selectedUser;
-    }
-    return availableUsers[0] || '';
+    return getEffectiveUser(availableUsers, selectedUser)
   }, [availableUsers, selectedUser]);
 
 
   // 2. Derive Applied Data for Dashboard based on *Applied* state
-  const appliedTenantId = TENANT_MAPPING[appliedTenant] || 1
+  const appliedTenantId = getTenantId(appliedTenant)
   const appliedTenantData = useMemo(() => mockData.filter(d => d.TenantId === appliedTenantId), [appliedTenantId])
 
 

@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -12,5 +13,11 @@ export default defineConfig({
         secure: false,
       }
     }
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/setupTests.ts'],
+    exclude: ['**/node_modules/**', 'server/server.test.js', 'src/data/*.test.ts', 'src/utils/*.test.ts', 'src/tests/*.test.ts'],
   }
-})
+} as import('vitest/config').UserConfig)
