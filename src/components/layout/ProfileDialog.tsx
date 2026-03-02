@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { getUserRole } from '../../utils/userUtils';
 
 interface ProfileDialogProps {
   isOpen: boolean;
@@ -29,8 +30,7 @@ const ProfileDialog: React.FC<ProfileDialogProps> = ({ isOpen, onClose, user }) 
 
   // Infer details from the user string
   const userInitial = user && user.length > 0 ? user.charAt(0).toUpperCase() : '?';
-  const role = user.toLowerCase().includes('admin') ? 'Administrator' :
-               user.toLowerCase().includes('sales') ? 'Sales Representative' : 'Viewer';
+  const role = getUserRole(user);
 
   return (
     <div className="fixed inset-0 z-[2147483647] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">

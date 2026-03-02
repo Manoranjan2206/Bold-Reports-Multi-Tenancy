@@ -5,8 +5,8 @@ export const config = {
   reportPath: '/Sample Reports/Product Line Sales',
   siteName: 'b1159702',
   credentials: {
-    user: 'test@gmail.com',
-    password: 'Admin@123',
-    embedSecret: 'mykey'
+    user: process.env.BOLD_REPORTS_USER,
+    password: process.env.BOLD_REPORTS_PASSWORD,
+    embedSecret: process.env.BOLD_REPORTS_EMBED_SECRET
   }
 };

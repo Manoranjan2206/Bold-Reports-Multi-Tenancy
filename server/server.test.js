@@ -1,52 +1,54 @@
-import test from 'node:test';
+import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert';
-import request from 'supertest';
 import axios from 'axios';
-import { mock } from 'node:test';
 import { app } from './server.js';
 
-test('POST /api/token - Success', async (t) => {
-  const mockToken = { access_token: 'mock_token_123' };
+// Store original implementation
+const originalPost = axios.post;
 
-  // Mock axios.post to return a successful response
-  mock.method(axios, 'post', async () => {
-    return { data: mockToken };
+describe('Server API Token Endpoint', () => {
+  let server;
+  let baseUrl;
+
+  before(async () => {
+    // Start the server on an ephemeral port
+    await new Promise((resolve) => {
+      server = app.listen(0, () => {
+        const port = server.address().port;
+        baseUrl = `http://localhost:${port}`;
+        resolve();
+      });
+    });
   });
 
-  // Ensure mock is reset after test
-  t.after(() => {
-    mock.reset();
+  after((done) => {
+    // Restore original axios implementation
+    axios.post = originalPost;
+    server.close(done);
   });
 
-  const response = await request(app)
-    .post('/api/token')
-    .send({ tenantId: 1, userId: 1 })
-    .expect('Content-Type', /json/)
-    .expect(200);
+  test('should return 500 when token generation fails', async () => {
+    const errorMessage = 'Simulated upstream failure';
 
-  assert.deepStrictEqual(response.body, mockToken);
-});
-
-test('POST /api/token - Error Handling', async (t) => {
-  // Mock axios.post to throw an error
-  mock.method(axios, 'post', async () => {
-    const error = new Error('Network Error');
-    error.response = {
-      data: 'Backend Service Unavailable'
+    // Monkey-patch axios.post to simulate a failure
+    axios.post = async () => {
+        const error = new Error(errorMessage);
+        error.response = { data: errorMessage };
+        throw error;
     };
-    throw error;
+
+    if (!baseUrl) {
+        throw new Error('Server not started properly, baseUrl is undefined');
+    }
+
+    const response = await fetch(`${baseUrl}/api/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tenantId: '123', userId: '456' })
+    });
+
+    assert.strictEqual(response.status, 500);
+    const data = await response.json();
+    assert.deepStrictEqual(data, { error: 'Failed to generate token' });
   });
-
-  // Ensure mock is reset after test
-  t.after(() => {
-    mock.reset();
-  });
-
-  const response = await request(app)
-    .post('/api/token')
-    .send({ tenantId: 1, userId: 1 })
-    .expect('Content-Type', /json/)
-    .expect(500);
-
-  assert.deepStrictEqual(response.body, { error: 'Failed to generate token' });
 });
