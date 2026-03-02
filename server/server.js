@@ -27,9 +27,6 @@ app.post('/api/token', async (req, res) => {
       ]
     };
 
-    console.log('Requesting token for:', config.credentials.user);
-    console.log('Parameters:', tokenRequest.ReportParameters);
-
     const response = await axios.post(config.tokenUrl, tokenRequest, {
       headers: { 'Content-Type': 'application/json' }
     });
