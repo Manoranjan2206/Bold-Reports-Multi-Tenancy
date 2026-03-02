@@ -36,7 +36,7 @@ const ProfileDialog: React.FC<ProfileDialogProps> = ({ isOpen, onClose, user }) 
     <div className="fixed inset-0 z-[2147483647] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">
       <div
         ref={dialogRef}
-        className="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-sm flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200"
+        className="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-sm sm:max-w-md flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[80vh]"
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
            <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
@@ -48,7 +48,7 @@ const ProfileDialog: React.FC<ProfileDialogProps> = ({ isOpen, onClose, user }) 
           </button>
         </div>
 
-        <div className="p-6 flex flex-col items-center space-y-6">
+        <div className="p-6 flex flex-col items-center space-y-6 overflow-y-auto">
              <div className="size-20 rounded-full bg-theme-teal/10 flex items-center justify-center border-4 border-theme-teal/30 text-theme-teal font-bold text-3xl shadow-lg ring-4 ring-white dark:ring-slate-700">
                 {userInitial}
              </div>
@@ -58,7 +58,7 @@ const ProfileDialog: React.FC<ProfileDialogProps> = ({ isOpen, onClose, user }) 
                 <p className="text-sm text-slate-500 dark:text-slate-400 font-mono">{user.replace(/\s+/g, '.').toLowerCase()}@boldreports.com</p>
              </div>
 
-             <div className="w-full bg-slate-50 dark:bg-slate-700/30 rounded-lg p-4 text-sm text-slate-600 dark:text-slate-300 space-y-2 border border-slate-100 dark:border-slate-600/50">
+             <div className="w-full bg-slate-50 dark:bg-slate-700/30 rounded-lg p-4 text-sm text-slate-600 dark:text-slate-300 space-y-2 border border-slate-100 dark:border-slate-600/50 overflow-y-auto max-h-40">
                 <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-600/50">
                     <span className="font-medium text-slate-500 dark:text-slate-400">Role</span>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${

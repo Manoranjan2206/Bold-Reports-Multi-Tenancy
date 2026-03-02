@@ -90,7 +90,7 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
 
   return (
     <div className="fixed inset-0 z-[2147483647] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-8xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
           <h2 className="text-lg font-bold text-slate-800 dark:text-white">Data Isolation Details</h2>
@@ -186,10 +186,12 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
             </div>
           )}
 
-          {activeTab === 'userDetails' && (
+           {activeTab === 'userDetails' && (
              <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                 <table className="min-w-full text-left text-sm whitespace-nowrap border-collapse">
-                    <thead className="bg-[#f0f4f8] dark:bg-slate-900/50 text-slate-700 dark:text-slate-300 font-bold text-xs border-b border-slate-200 dark:border-slate-700">
+                {/* Constrain height and enable vertical scrolling for long user lists */}
+                <div className="overflow-y-auto max-h-[56vh]">
+                <table className="min-w-full text-left text-sm whitespace-nowrap border-collapse">
+                  <thead className="sticky top-0 bg-[#f0f4f8] dark:bg-slate-900/50 text-slate-700 dark:text-slate-300 font-bold text-xs border-b border-slate-200 dark:border-slate-700">
                         <tr>
                             <th className="px-6 py-4 border-r border-slate-200 dark:border-slate-700">Tenant</th>
                             <th className="px-6 py-4 border-r border-slate-200 dark:border-slate-700">Username</th>
@@ -251,8 +253,9 @@ const IsolationDetailsModal: React.FC<IsolationDetailsModalProps> = ({ isOpen, o
                         ))}
                     </tbody>
                  </table>
-             </div>
-          )}
+                 </div>
+               </div>
+              )}
         </div>
 
         {/* Footer */}

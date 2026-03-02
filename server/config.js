@@ -4,9 +4,9 @@ export const config = {
   tokenUrl: 'https://cloud.boldreports.com/reporting/api/site/b1159702/token',
   reportPath: '/Sample Reports/Product Line Sales',
   siteName: 'b1159702',
-  credentials: {
-    user: process.env.BOLD_REPORTS_USER,
-    password: process.env.BOLD_REPORTS_PASSWORD,
-    embedSecret: process.env.BOLD_REPORTS_EMBED_SECRET
+credentials: {
+    user: 'test@gmail.com',
+    password: 'Admin@123',
+    embedSecret: 'Yhfw5o9c01TVdPk8HWhQQnGKAl0K9HP'
   }
 };

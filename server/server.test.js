@@ -44,7 +44,7 @@ describe('Server API Token Endpoint', () => {
     const response = await fetch(`${baseUrl}/api/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tenantId: '123', userId: '456' })
+      body: JSON.stringify({ tenantId: '1', userId: '1' })
     });
 
     assert.strictEqual(response.status, 500);

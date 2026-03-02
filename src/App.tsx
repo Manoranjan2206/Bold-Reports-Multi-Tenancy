@@ -52,6 +52,9 @@ function App() {
   const effectiveAppliedUser = useMemo(() => {
       if (appliedUser) return appliedUser;
       const initialTenantData = mockData.filter(d => d.TenantId === 1);
+      // Prefer the canonical user with UserId === 1 when present (ensures initial userId === 1)
+      const preferred = initialTenantData.find(d => d.UserId === 1);
+      if (preferred) return preferred.UserName;
       const initialUsers = Array.from(new Set(initialTenantData.map(d => d.UserName))).sort();
       return initialUsers[0] || '';
   }, [appliedUser]);

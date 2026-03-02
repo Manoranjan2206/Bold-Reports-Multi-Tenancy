@@ -35,10 +35,11 @@ const Header: React.FC<HeaderProps> = ({ onToggleModal, theme, toggleTheme, onTo
           {/* Info/Modal Button */}
           <button
             onClick={onToggleModal}
-            className="flex items-center justify-center p-2 rounded-full hover:bg-white/10 transition-colors"
+            className="flex items-center gap-2 px-3 py-1 rounded-full hover:bg-white/10 transition-colors"
             title="Data Isolation Details"
           >
-            <span className="material-symbols-outlined text-[20px]">info</span>
+            <span className="material-symbols-outlined text-[20px]">architecture</span>
+            <span className="text-sm font-medium text-white/90">Details</span>
           </button>
 
           {/* Theme Toggle */}
