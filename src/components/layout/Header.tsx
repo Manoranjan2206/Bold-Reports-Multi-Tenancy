@@ -7,9 +7,13 @@ interface HeaderProps {
   toggleTheme: () => void;
   onToggleSidebar: () => void;
   user?: string; // Add user prop
+  tenant?: string;
+  tenantId?: number;
+  userId?: number;
+  userName?: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ onToggleModal, theme, toggleTheme, onToggleSidebar, user }) => {
+const Header: React.FC<HeaderProps> = ({ onToggleModal, theme, toggleTheme, onToggleSidebar, user, tenant, tenantId, userId, userName }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   // Extract initial for avatar
@@ -30,7 +34,14 @@ const Header: React.FC<HeaderProps> = ({ onToggleModal, theme, toggleTheme, onTo
             <h1 className="text-lg font-bold tracking-wide">Bold Reports — Multi-Tenancy Demo</h1>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-white/90">
+        <div className="flex items-center gap-4 text-white/90">
+
+          {/* Tenant/User summary */}
+          <div className="hidden sm:flex flex-col text-right text-white/90 mr-2">
+            <span className="text-xs text-white/90">{tenant || 'Tenant'}</span>
+            <span className="text-[11px] text-white/80">{userName || user || 'User'}</span>
+            <span className="text-[10px] text-white/60">ID: {userId ?? '-' } / TID: {tenantId ?? '-'}</span>
+          </div>
 
           {/* Info/Modal Button */}
           <button

@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import { config } from './config.js';
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 // Load environment variables from .env when present
 dotenv.config();
@@ -38,14 +38,13 @@ app.post('/api/token', async (req, res) => {
       ]
     };
 
-    console.log('Requesting token for site user:', config.credentials.user ? config.credentials.user : '<<missing user>>');
-    console.log('Parameters:', tokenRequest.ReportParameters);
+    // Request sent to token endpoint (sensitive info suppressed in logs)
 
     const response = await axios.post(config.tokenUrl, tokenRequest, {
       headers: { 'Content-Type': 'application/json' }
     });
 
-    console.log('Token received successfully');
+    // Token successfully received from Bold Reports
     res.json(response.data);
   } catch (error) {
     // Provide more detailed logging for debugging (don't leak secrets)

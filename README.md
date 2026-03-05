@@ -1,6 +1,6 @@
-# React + TypeScript + Vite
+# Bold Reports Multi-Tenancy React App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A multi-domain React + Node.js application for Bold Reports embedding with separate server instances for different domains.
 
 Currently, two official plugins are available:
 

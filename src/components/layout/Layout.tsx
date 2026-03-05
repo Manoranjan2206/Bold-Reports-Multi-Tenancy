@@ -10,6 +10,9 @@ interface LayoutProps {
   setTenant: (value: string) => void;
   user: string;
   setUser: (value: string) => void;
+  tenantId?: number;
+  userId?: number;
+  userName?: string;
   availableUsers: string[];
   onRefresh: () => void;
   onToggleModal: () => void;
@@ -24,6 +27,7 @@ const Layout: React.FC<LayoutProps> = ({
   model, setModel,
   tenant, setTenant,
   user, setUser,
+  tenantId, userId, userName,
   availableUsers,
   onRefresh,
   onToggleModal,
@@ -39,6 +43,10 @@ const Layout: React.FC<LayoutProps> = ({
         theme={theme}
         toggleTheme={toggleTheme}
         onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        tenant={tenant}
+        tenantId={tenantId}
+        userName={userName ?? user}
+        userId={userId}
       />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar

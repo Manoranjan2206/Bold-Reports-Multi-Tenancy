@@ -42,7 +42,7 @@ function App() {
   // 3. Handle Refresh Button Click
   const handleRefresh = () => {
     // When refreshing, we commit the *effective* selected user to be the applied user.
-    console.log('Refreshing report with:', selectedModel, selectedTenant, effectiveSelectedUser)
+    // Refresh initiated — commit selection (no debug logging)
     setAppliedModel(selectedModel)
     setAppliedTenant(selectedTenant)
     setAppliedUser(effectiveSelectedUser)
@@ -104,6 +104,9 @@ function App() {
       toggleTheme={toggleTheme}
       isSidebarOpen={isSidebarOpen}
       setIsSidebarOpen={setIsSidebarOpen}
+      tenantId={appliedTenantId}
+      userId={finalReportUserId}
+      userName={userName}
     >
       <div className="w-full h-full flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-900">
 
@@ -142,12 +145,13 @@ function App() {
                     <table className="w-full text-left border-collapse">
                         <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-700 shadow-sm">
                         <tr className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
-                            <th className="p-3 border-b border-slate-200 dark:border-slate-600">Customer</th>
-                            <th className="p-3 border-b border-slate-200 dark:border-slate-600">Date</th>
-                            <th className="p-3 border-b border-slate-200 dark:border-slate-600">Product</th>
-                            <th className="p-3 border-b border-slate-200 dark:border-slate-600">Region</th>
-                            <th className="p-3 text-right border-b border-slate-200 dark:border-slate-600">Amount</th>
-                            <th className="p-3 text-center border-b border-slate-200 dark:border-slate-600">Status</th>
+                          <th className="p-3 border-b border-slate-200 dark:border-slate-600">Customer</th>
+                          <th className="p-3 border-b border-slate-200 dark:border-slate-600">Date</th>
+                          <th className="p-3 border-b border-slate-200 dark:border-slate-600">Product</th>
+                          <th className="p-3 border-b border-slate-200 dark:border-slate-600">Region</th>
+                          <th className="p-3 border-b border-slate-200 dark:border-slate-600">Country</th>
+                          <th className="p-3 text-right border-b border-slate-200 dark:border-slate-600">Amount</th>
+                          <th className="p-3 text-center border-b border-slate-200 dark:border-slate-600">Status</th>
                         </tr>
                         </thead>
                         <tbody className="text-xs divide-y divide-slate-100 dark:divide-slate-700">
@@ -161,7 +165,8 @@ function App() {
                             </td>
                             <td className="p-3 text-slate-700 dark:text-slate-300">{new Date(record.ReportDate).toLocaleDateString()}</td>
                             <td className="p-3 text-slate-800 dark:text-slate-200 font-medium">{record.Product}</td>
-                            <td className="p-3 text-slate-600 dark:text-slate-400">{record.Region}</td>
+                          <td className="p-3 text-slate-600 dark:text-slate-400">{record.Region}</td>
+                          <td className="p-3 text-slate-600 dark:text-slate-400">{record.Country}</td>
                             <td className="p-3 text-right font-mono font-medium dark:text-slate-200">{formatter.format(record.TotalSales)}</td>
                             <td className="p-3 text-center">
                                 <span className="px-2 py-0.5 rounded-full text-[10px] bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 font-medium">Paid</span>
@@ -169,11 +174,11 @@ function App() {
                             </tr>
                         ))}
                         {finalFilteredData.length === 0 && (
-                            <tr>
-                            <td colSpan={6} className="p-8 text-center text-slate-500 dark:text-slate-400 italic">
-                                No records found for the selected criteria.
-                            </td>
-                            </tr>
+                          <tr>
+                          <td colSpan={7} className="p-8 text-center text-slate-500 dark:text-slate-400 italic">
+                            No records found for the selected criteria.
+                          </td>
+                          </tr>
                         )}
                         </tbody>
                     </table>

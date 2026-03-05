@@ -1,5 +1,6 @@
 import React from 'react';
 import { TENANTS } from '../../data/tenantConfig';
+import { mockData } from '../../data/mockData';
 
 interface SidebarProps {
   model: string;
@@ -14,6 +15,13 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ model, setModel, tenant, setTenant, user, setUser, availableUsers, onRefresh, isOpen }) => {
+  // Derive numeric tenant id from tenant name
+  const derivedTenant = TENANTS.find(t => t.name === tenant);
+  const derivedTenantId = derivedTenant ? derivedTenant.id : null;
+
+  // Derive selected user id from mockData for the current tenant
+  const selectedUserRecord = derivedTenantId ? mockData.find(d => d.TenantId === derivedTenantId && d.UserName === user) : null;
+  const selectedUserId = selectedUserRecord ? selectedUserRecord.UserId : null;
   return (
     <aside
       className={`
@@ -62,6 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({ model, setModel, tenant, setTenant, u
               <span className="material-symbols-outlined text-sm">expand_more</span>
             </div>
           </div>
+            <div className="text-xs text-slate-400 mt-1">Tenant ID: {derivedTenantId ?? '-'}</div>
         </div>
 
         {/* User */}
@@ -81,6 +90,7 @@ const Sidebar: React.FC<SidebarProps> = ({ model, setModel, tenant, setTenant, u
               <span className="material-symbols-outlined text-sm">expand_more</span>
             </div>
           </div>
+          <div className="text-xs text-slate-400 mt-1">User ID: {selectedUserId ?? '-'}</div>
         </div>
 
         <button
