@@ -1,4 +1,5 @@
 import type { SalesRecord } from '../data/mockData';
+import { getTenantById } from '../data/tenantConfig.ts';
 
 export interface EnrichedUserDetail {
     TenantId: number;
@@ -17,26 +18,11 @@ export interface GroupedUser {
     users: EnrichedUserDetail[];
 }
 
-export const getTenantName = (id: number) => {
-    if (id === 1) return "Northwind Traders";
-    if (id === 2) return "Adventure Works";
-    if (id === 3) return "Contoso Ltd";
-    return "Unknown Tenant";
-};
+export const getTenantName = (id: number) => getTenantById(id)?.name ?? "Unknown Tenant";
 
-export const getTenantSlug = (id: number) => {
-    if (id === 1) return "northwind_traders";
-    if (id === 2) return "adventure_works";
-    if (id === 3) return "contoso_ltd";
-    return "unknown";
-};
+export const getTenantSlug = (id: number) => getTenantById(id)?.slug ?? "unknown";
 
-export const getTenantDomain = (id: number) => {
-    if (id === 1) return "northwindtraders.com";
-    if (id === 2) return "adventure-works.com";
-    if (id === 3) return "contoso.com";
-    return "example.com";
-};
+export const getTenantDomain = (id: number) => getTenantById(id)?.domain ?? "example.com";
 
 export const groupUsersByTenant = (data: SalesRecord[]): GroupedUser[] => {
     // 1. Flatten mockData to unique (TenantId, UserName) tuples
