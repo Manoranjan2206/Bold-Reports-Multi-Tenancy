@@ -23,10 +23,27 @@ export function getTenantId(tenantName: string): number {
   return TENANT_MAPPING[tenantName] || 1;
 }
 
+// Cache to store available users per data array and tenant ID
+const availableUsersCache = new WeakMap<SalesRecord[], Map<number, string[]>>();
+
 export function getAvailableUsers(tenantId: number, data: SalesRecord[]): string[] {
+  let tenantCache = availableUsersCache.get(data);
+  if (!tenantCache) {
+    tenantCache = new Map<number, string[]>();
+    availableUsersCache.set(data, tenantCache);
+  }
+
+  const cachedUsers = tenantCache.get(tenantId);
+  if (cachedUsers) {
+    return cachedUsers;
+  }
+
   const tenantData = data.filter(d => d.TenantId === tenantId);
   const users = Array.from(new Set(tenantData.map(d => d.UserName))).sort();
-  return users.length > 0 ? users : ['No Users Found'];
+  const result = users.length > 0 ? users : ['No Users Found'];
+
+  tenantCache.set(tenantId, result);
+  return result;
 }
 
 export function getEffectiveUser(availableUsers: string[], selectedUser: string): string {
