@@ -138,6 +138,22 @@ describe('User Grouping Utility', () => {
       const viewer = viewerResult[0].users[0];
       assert.strictEqual(viewer.UserRole, 'Viewer');
       assert.ok(viewer.RlsFilter.includes('Preconfigured RLS'));
+
+      // Role inference (Starts with O -> Manager)
+      const oscarInput = [
+        createMockRecord({ TenantId: 1, UserName: 'Oscar', Region: 'US' }),
+      ];
+      const oscarResult = groupUsersByTenant(oscarInput);
+      const oscar = oscarResult[0].users[0];
+      assert.strictEqual(oscar.UserRole, 'Manager');
+
+      // Multiple spaces in username mapping
+      const multiSpaceInput = [
+        createMockRecord({ TenantId: 1, UserName: 'John von Neumann', Region: 'US' }),
+      ];
+      const multiSpaceResult = groupUsersByTenant(multiSpaceInput);
+      const multiSpace = multiSpaceResult[0].users[0];
+      assert.strictEqual(multiSpace.Email, 'john.von.neumann@northwindtraders.com');
     });
   });
 });

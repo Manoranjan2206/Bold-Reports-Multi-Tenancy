@@ -45,7 +45,7 @@ export const groupUsersByTenant = (data: SalesRecord[]): GroupedUser[] => {
     data.forEach((record: SalesRecord) => {
         const key = `${record.TenantId}-${record.UserName}`;
         if (!uniqueUserMap.has(key)) {
-            const email = `${record.UserName.toLowerCase().replace(' ', '.')}@${getTenantDomain(record.TenantId)}`;
+            const email = `${record.UserName.toLowerCase().replaceAll(' ', '.')}@${getTenantDomain(record.TenantId)}`;
             const dbMapping = `'sales_analysis_db':'${getTenantSlug(record.TenantId)}_sales_analysis'`;
 
             // Infer role/RLS based on mock data patterns or just random assignment for demo variety
