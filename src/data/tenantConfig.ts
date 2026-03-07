@@ -17,7 +17,8 @@ export const getTenantById = (id: number): Tenant => {
   return { id, name: "Unknown Tenant", slug: "unknown", domain: "example.com" };
 };
 
-export const TENANT_MAPPING: Record<string, number> = TENANTS.reduce((acc, tenant) => {
-  acc[tenant.name] = tenant.id;
-  return acc;
-}, {} as Record<string, number>);
+export const TENANT_MAPPING: Record<string, number> = {
+  "Northwind Traders": 1,
+  "Adventure Works": 2,
+  "Contoso Ltd": 3
+};
