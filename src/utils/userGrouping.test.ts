@@ -1,20 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { groupUsersByTenant, getTenantName, getTenantSlug, getTenantDomain } from './userGrouping.ts';
-
-// Mock SalesRecord interface
-interface SalesRecord {
-    UserId: number;
-    UserName: string;
-    Region: string;
-    Country: string;
-    TenantId: number;
-    Product: string;
-    TotalSales: number;
-    UnitsSold: number;
-    ReportDate: string;
-    ImageUrl: string;
-}
+import type { SalesRecord } from '../data/mockData.ts';
 
 const createMockRecord = (overrides: Partial<SalesRecord> = {}): SalesRecord => ({
   UserId: 1,

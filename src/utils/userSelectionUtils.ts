@@ -1,23 +1,5 @@
-
-// Mocking the SalesRecord interface since imports are failing in test runner
-export interface SalesRecord {
-    UserId: number;
-    UserName: string;
-    Region: string;
-    Country: string;
-    TenantId: number;
-    Product: string;
-    TotalSales: number;
-    UnitsSold: number;
-    ReportDate: string;
-    ImageUrl: string;
-}
-
-export const TENANT_MAPPING: Record<string, number> = {
-  "Northwind Traders": 1,
-  "Adventure Works": 2,
-  "Contoso Ltd": 3
-};
+import type { SalesRecord } from '../data/mockData.ts';
+import { TENANT_MAPPING } from '../data/tenantConfig.ts';
 
 export function getTenantId(tenantName: string): number {
   return TENANT_MAPPING[tenantName] || 1;
@@ -35,3 +17,6 @@ export function getEffectiveUser(availableUsers: string[], selectedUser: string)
   }
   return availableUsers[0] || '';
 }
+
+// Re-export SalesRecord for tests that might be importing it from here
+export type { SalesRecord };
