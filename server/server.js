@@ -11,7 +11,22 @@ const port = process.env.PORT || 3001;
 // Load environment variables from .env when present
 dotenv.config();
 
-app.use(cors());
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? [process.env.FRONTEND_URL || 'https://your-production-url.com']
+  : ['http://localhost:5173', 'http://localhost:4173'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    } else {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+  }
+}));
 app.use(express.json());
 
 app.post('/api/token', async (req, res) => {

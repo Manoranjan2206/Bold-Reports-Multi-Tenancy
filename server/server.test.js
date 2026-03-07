@@ -49,6 +49,6 @@ describe('Server API Token Endpoint', () => {
 
     assert.strictEqual(response.status, 500);
     const data = await response.json();
-    assert.deepStrictEqual(data, { error: 'Failed to generate token' });
+    assert.deepStrictEqual(data, { error: 'Failed to generate token', detail: errorMessage });
   });
 });
