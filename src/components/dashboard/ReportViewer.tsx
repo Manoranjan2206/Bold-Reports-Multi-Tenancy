@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 
 // Report Viewer source
@@ -12,9 +11,9 @@ import '@boldreports/react-reporting-components/Scripts/bold.reports.react.min';
 
 declare global {
   interface Window {
-    BoldReportViewerComponent: any;
-    $: any;
-    jQuery: any;
+    BoldReportViewerComponent: React.ElementType;
+    $: unknown;
+    jQuery: unknown;
   }
 }
 
@@ -60,8 +59,8 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ tenantId, userId }) => {
         } else {
             setError("Invalid token response from server");
         }
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch secure token");
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Failed to fetch secure token");
       } finally {
         setLoading(false);
       }
