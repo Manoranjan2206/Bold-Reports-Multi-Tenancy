@@ -448,3 +448,13 @@ export const mockDataByTenant = mockData.reduce((acc, record) => {
     acc[record.TenantId].push(record)
     return acc
 }, {} as Record<number, SalesRecord[]>)
+
+export const mockDataByTenantAndUser = mockData.reduce((acc, record) => {
+    if (!acc[record.TenantId]) {
+        acc[record.TenantId] = {};
+    }
+    if (!acc[record.TenantId][record.UserName]) {
+        acc[record.TenantId][record.UserName] = record;
+    }
+    return acc;
+}, {} as Record<number, Record<string, SalesRecord>>);
