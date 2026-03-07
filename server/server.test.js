@@ -2,6 +2,7 @@ import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert';
 import axios from 'axios';
 import { app } from './server.js';
+import { config } from './config.js';
 
 // Store original implementation
 const originalPost = axios.post;
@@ -27,6 +28,26 @@ describe('Server API Token Endpoint', () => {
     server.close(done);
   });
 
+  test('should return 500 when missing Bold Reports credentials', async () => {
+    const originalCredentials = { ...config.credentials };
+
+    // Simulate missing user
+    config.credentials.user = '';
+
+    const response = await fetch(`${baseUrl}/api/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tenantId: '1', userId: '1' })
+    });
+
+    assert.strictEqual(response.status, 500);
+    const data = await response.json();
+    assert.deepStrictEqual(data, { error: 'Server misconfiguration: missing Bold Reports credentials. Set BOLD_REPORTS_USER, BOLD_REPORTS_PASSWORD, BOLD_REPORTS_EMBED_SECRET' });
+
+    // Restore original credentials
+    Object.assign(config.credentials, originalCredentials);
+  });
+
   test('should return 500 when token generation fails', async () => {
     const errorMessage = 'Simulated upstream failure';
 
@@ -49,6 +70,6 @@ describe('Server API Token Endpoint', () => {
 
     assert.strictEqual(response.status, 500);
     const data = await response.json();
-    assert.deepStrictEqual(data, { error: 'Failed to generate token' });
+    assert.deepStrictEqual(data, { error: 'Failed to generate token', detail: errorMessage });
   });
 });
