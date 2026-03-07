@@ -1,6 +1,6 @@
 import React from 'react';
-import { TENANTS } from '../../data/tenantConfig';
-import { mockData } from '../../data/mockData';
+import { TENANTS, TENANT_MAPPING } from '../../data/tenantConfig';
+import { mockDataByTenantAndUser } from '../../data/mockData';
 
 interface SidebarProps {
   model: string;
@@ -16,11 +16,10 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ model, setModel, tenant, setTenant, user, setUser, availableUsers, onRefresh, isOpen }) => {
   // Derive numeric tenant id from tenant name
-  const derivedTenant = TENANTS.find(t => t.name === tenant);
-  const derivedTenantId = derivedTenant ? derivedTenant.id : null;
+  const derivedTenantId = TENANT_MAPPING[tenant] ?? null;
 
   // Derive selected user id from mockData for the current tenant
-  const selectedUserRecord = derivedTenantId ? mockData.find(d => d.TenantId === derivedTenantId && d.UserName === user) : null;
+  const selectedUserRecord = derivedTenantId && user ? mockDataByTenantAndUser[derivedTenantId]?.[user] : null;
   const selectedUserId = selectedUserRecord ? selectedUserRecord.UserId : null;
   return (
     <aside
