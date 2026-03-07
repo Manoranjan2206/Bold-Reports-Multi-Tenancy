@@ -37,4 +37,46 @@ describe('getConnectionString', () => {
         const expected = 'Server=tcp:demo.database.windows.net;Database=My_Long_Tenant_Db;User ID=app_user;Password=******;';
         assert.strictEqual(getConnectionString(model, tenant), expected);
     });
+
+    it('should handle single word tenant without spaces', () => {
+        const model = 'Database per Tenant';
+        const tenant = 'SingleWord';
+        const expected = 'Server=tcp:demo.database.windows.net;Database=SingleWord_Db;User ID=app_user;Password=******;';
+        assert.strictEqual(getConnectionString(model, tenant), expected);
+    });
+
+    it('should handle empty string tenant', () => {
+        const model = 'Database per Tenant';
+        const tenant = '';
+        const expected = 'Server=tcp:demo.database.windows.net;Database=_Db;User ID=app_user;Password=******;';
+        assert.strictEqual(getConnectionString(model, tenant), expected);
+    });
+
+    it('should handle single word tenant for Schema per Tenant', () => {
+        const model = 'Schema per Tenant';
+        const tenant = 'SingleWord';
+        const expected = 'Server=tcp:demo.database.windows.net;Database=Shared_Db;Schema=SingleWord;User ID=app_user;Password=******;';
+        assert.strictEqual(getConnectionString(model, tenant), expected);
+    });
+
+    it('should handle empty string tenant for Schema per Tenant', () => {
+        const model = 'Schema per Tenant';
+        const tenant = '';
+        const expected = 'Server=tcp:demo.database.windows.net;Database=Shared_Db;Schema=;User ID=app_user;Password=******;';
+        assert.strictEqual(getConnectionString(model, tenant), expected);
+    });
+
+    it('should handle single word tenant for Shared Database', () => {
+        const model = 'Shared Database (RLS)';
+        const tenant = 'SingleWord';
+        const expected = 'Server=tcp:demo.database.windows.net;Database=Shared_Db;User ID=app_user;Password=******;';
+        assert.strictEqual(getConnectionString(model, tenant), expected);
+    });
+
+    it('should handle empty string tenant for Shared Database', () => {
+        const model = 'Shared Database (RLS)';
+        const tenant = '';
+        const expected = 'Server=tcp:demo.database.windows.net;Database=Shared_Db;User ID=app_user;Password=******;';
+        assert.strictEqual(getConnectionString(model, tenant), expected);
+    });
 });
