@@ -19,4 +19,10 @@ test('getUserRole should return "Viewer" for other strings', () => {
   assert.strictEqual(getUserRole('guest'), 'Viewer');
   assert.strictEqual(getUserRole(''), 'Viewer');
   assert.strictEqual(getUserRole(undefined as unknown as string), 'Viewer');
+  assert.strictEqual(getUserRole(null as unknown as string), 'Viewer');
+});
+
+test('getUserRole should prioritize Administrator when string contains both "admin" and "sales"', () => {
+  assert.strictEqual(getUserRole('Sales Admin'), 'Administrator');
+  assert.strictEqual(getUserRole('Admin of Sales'), 'Administrator');
 });
